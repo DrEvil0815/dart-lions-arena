@@ -7,6 +7,8 @@ const key='dartlions-kids-v24-local';
 const legacyKey='dartlions-kids-v23';
 const initial=()=>Array.from({length:6},(_,i)=>({name:'',game:games[i%4][0],hits:[],done:false}));
 let boards=initial(),results=[],current=0;
+const trainingResult=()=>{const b=boards[current];if(!b||b.done)return;finish();};
+function maybeAutoFinish(){const b=boards[current];if(!b.done&&progress(b).finished)trainingResult();}
 try{const saved=JSON.parse(localStorage.getItem(key));if(saved&&Array.isArray(saved.boards)&&saved.boards.length===6)boards=saved.boards;if(Array.isArray(saved.results))results=saved.results;}catch{}
 const save=()=>{try{localStorage.setItem(key,JSON.stringify({boards,results,current}));}catch{}};
 const options=()=>games.map(([v,t])=>`<option value="${v}">${t}</option>`).join('');
@@ -26,11 +28,11 @@ const total=el('kids-entry-mode').value==='total';if(total&&!allowedTotal(b)){el
 for(const o of el('kids-entry-mode').options)o.disabled=o.value==='total'&&!allowedTotal(b);
 const entry=el('kids-entry-mode').value;el('kids-dartboard').hidden=entry!=='board';el('kids-manual').hidden=entry!=='manual';el('kids-total').hidden=entry!=='total';el('kids-log').textContent=b.hits.length?`Letzte Treffer: ${b.hits.slice(-18).join(' · ')}`:'Noch keine Treffer erfasst.';
 }
-function addHit(hit){const b=boards[current];if(b.done||progress(b).finished)return;if(b.hits.length>=90)return;b.hits.push(hit);save();render();}
-function addTotal(){const b=boards[current];if(!allowedTotal(b))return;const input=el('kids-total-score');if(input.value.trim()===''){input.focus();return;}const v=Number(input.value);if(!Number.isInteger(v)||v<0||v>180){alert('Bitte einen Gesamtscore zwischen 0 und 180 eingeben.');return;}if(b.hits.length>=30)return;b.hits.push('TOTAL:'+v,'TOTAL:0','TOTAL:0');el('kids-total-score').value='';save();render();input.focus();}
+function addHit(hit){const b=boards[current];if(b.done||progress(b).finished)return;if(b.hits.length>=90)return;b.hits.push(hit);save();render();maybeAutoFinish();}
+function addTotal(){const b=boards[current];if(!allowedTotal(b))return;const input=el('kids-total-score');if(input.value.trim()===''){input.focus();return;}const v=Number(input.value);if(!Number.isInteger(v)||v<0||v>180){alert('Bitte einen Gesamtscore zwischen 0 und 180 eingeben.');return;}if(b.hits.length>=30)return;b.hits.push('TOTAL:'+v,'TOTAL:0','TOTAL:0');el('kids-total-score').value='';save();render();maybeAutoFinish();if(!b.done)input.focus();}
 // A total visit is stored as a three-dart group. For highscore, score the first value only.
 function calc(b){if(b.game==='high')return b.hits.reduce((s,h)=>s+(h.startsWith('TOTAL:')?Number(h.slice(6)):score(h)),0);return progress(b).points;}
-function finish(){const b=boards[current];if(!b.hits.length){alert('Bitte zuerst Treffer erfassen.');return;}b.done=true;results.unshift({date:new Date().toLocaleString('de-DE'),name:b.name||`Board ${current+1}`,board:current+1,game:gameName(b.game),points:calc(b),darts:b.hits.length});save();render();alert('Ergebnis gespeichert.');}
+function finish(){const b=boards[current];if(!b.hits.length){alert('Bitte zuerst Treffer erfassen.');return;}if(b.done)return;b.done=true;const points=calc(b),darts=b.hits.length;results.unshift({date:new Date().toLocaleString('de-DE'),name:b.name||`Board ${current+1}`,board:current+1,game:gameName(b.game),points,darts});save();render();window.ArenaResults.open({title:'TRAINING BEENDET',subtitle:(b.name||`Board ${current+1}`)+' · '+gameName(b.game),stats:[['ERGEBNIS',String(points)+(b.game==='clock'?' Zahlen':' Punkte')],['3-DART AVG',(points/darts*3).toFixed(2)],['DARTS',String(darts)],['AUFNAHMEN',String(Math.ceil(darts/3))]],onExit:()=>{show('results');},onRestart:()=>{b.hits=[];b.done=false;save();show('board');}});}
 function renderResults(){el('kids-result-list').innerHTML=results.length?results.map(r=>`<div class="kids-result"><strong>${escapeHTML(r.name)}</strong> · Board ${r.board} · ${escapeHTML(r.game)}<br>${r.points} Punkte · ${r.darts} Darts · ${escapeHTML(r.date)}</div>`).join(''):'Noch keine Ergebnisse gespeichert.';}
 function boardSvg(){const ns='http://www.w3.org/2000/svg';let html='<svg viewBox="0 0 320 320" role="group" aria-label="Dartboard mit anklickbaren Feldern"><circle cx="160" cy="160" r="157" fill="#111" stroke="#b78b4b" stroke-width="3"/>';
 const point=(r,a)=>`${160+r*Math.cos(a)} ${160+r*Math.sin(a)}`;
@@ -51,7 +53,7 @@ el('kids-add-hit').addEventListener('click',()=>addHit(el('kids-hit').value));el
 el('kids-total-score').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();addTotal();}});
 el('kids-dartboard').addEventListener('click',e=>{const hit=e.target.closest('[data-hit]');if(hit)addHit(hit.dataset.hit);});
 el('kids-miss').addEventListener('click',()=>addHit('MISS'));
-el('kids-undo').addEventListener('click',()=>{const b=boards[current];if(b.done){alert('Abgeschlossenes Training kann nicht geändert werden.');return;}b.hits.pop();save();render();});
+el('kids-undo').addEventListener('click',()=>{const b=boards[current];if(b.done){alert('Abgeschlossenes Training kann nicht geändert werden.');return;}if(b.hits.length>=3&&b.hits[b.hits.length-3]?.startsWith('TOTAL:'))b.hits.splice(-3);else b.hits.pop();save();render();});
 el('kids-next').addEventListener('click',finish);
 el('kids-clear-results').addEventListener('click',()=>{if(confirm('Alle lokal gespeicherten Kids-Ergebnisse löschen?')){results=[];save();renderResults();}});
 boardSvg();openBoard(current);

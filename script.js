@@ -215,6 +215,7 @@ function recordVisit(value,darts,finishingDouble=false,finishingTriple=false,dou
       state.legs[i]++;
       if(state.legs[i]>=Math.ceil(state.bestOf/2)){
         state.finished=true;$('message').textContent='GAME SHOT AND THE MATCH! '+state.names[i]+' gewinnt '+state.legs[0]+':'+state.legs[1]+'.';$('message').classList.add('match-finished');
+        setTimeout(()=>{if(!state?.finished)return;const winner=state.names[i];window.ArenaResults.open({title:'MATCH BEENDET',subtitle:winner+' gewinnt '+state.legs[0]+':'+state.legs[1],stats:[['SIEGER',winner],['ERGEBNIS',state.legs[0]+':'+state.legs[1]],['3-DART AVG',state.throws[i]?(state.scored[i]/state.throws[i]*3).toFixed(2):'0.00'],['180ER',String(state.max180[i])]],onExit:()=>showSetup(),onRestart:()=>startMatch()});},80);
       }else{
         $('message').textContent='Game shot! '+state.names[i]+' gewinnt das Leg.';
         state.scores=state.starts.slice();state.legDarts=[0,0];state.legStarter=1-state.legStarter;state.turn=state.legStarter;
