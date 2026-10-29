@@ -3,21 +3,37 @@
 const $ = id => document.getElementById(id);
 let state = null, history = [];
 let inputMode = 'total', multiplier = 1, dartDraft = [], pendingVisit = null;
+let botTimer = null;
+function stopBot(){if(botTimer!==null){clearTimeout(botTimer);botTimer=null;}}
+function opponentChanged(){const bot=$('opponent-type').value==='bot';$('bot-level-wrap').hidden=!bot;$('p2').value=bot?'Dart-Bot':($('p2').value==='Dart-Bot'?'Spieler 2':$('p2').value);$('p2').readOnly=bot;}
+function selectGameType(type){
+  if(type==='online')return;
+  $('opponent-type').value=type;
+  opponentChanged();
+  $('choice-screen').hidden=true;
+  $('setup-screen').hidden=false;
+}
+document.querySelectorAll('[data-game-type]').forEach(button=>button.addEventListener('click',()=>selectGameType(button.dataset.gameType)));
+$('back-to-choice').addEventListener('click',()=>{$('setup-screen').hidden=true;$('choice-screen').hidden=false;});
+opponentChanged();
 function clone(value) { return JSON.parse(JSON.stringify(value)); }
 function showSetup() {
+  stopBot();
   $('game-screen').hidden = true;
-  $('setup-screen').hidden = false;
+  $('setup-screen').hidden = true;
+  $('choice-screen').hidden = false;
   $('points').value = '';
   dartDraft=[]; pendingVisit=null; $('double-overlay').hidden=true;document.body.classList.remove('dialog-open');
 }
 function startMatch(e) {
   if (e) e.preventDefault();
   const start = Number($('start').value), bestOf = Number($('bestof').value);
+  stopBot();
   const names = [$('p1').value.trim(), $('p2').value.trim()];
   if (!names[0] || !names[1]) { alert('Bitte beide Spielernamen eingeben.'); return; }
   let config;try{config=handicapConfig();}catch(err){alert(err.message);return;}
   state = { scores:config.starts.slice(), starts:config.starts.slice(), outs:config.outs.slice(), handicap:config.mode, legs:[0,0], names, turn:0, legStarter:0,
-    throws:[0,0], scored:[0,0], last:[null,null], max180:[0,0], highFinishes:[[],[]], shortLegs:[[],[]], legDarts:[0,0], visits:[[],[]], hits:[{'40':0,'60':0,'80':0,'100':0,'180':0},{'40':0,'60':0,'80':0,'100':0,'180':0}], doubles:[0,0], doubleHits:[0,0], doubleComplete:[true,true], start, bestOf, out:$('out').value, finished:false, trackDoubles:$('track-doubles').value==='yes' };
+    throws:[0,0], scored:[0,0], last:[null,null], max180:[0,0], highFinishes:[[],[]], shortLegs:[[],[]], legDarts:[0,0], visits:[[],[]], hits:[{'40':0,'60':0,'80':0,'100':0,'180':0},{'40':0,'60':0,'80':0,'100':0,'180':0}], doubles:[0,0], doubleHits:[0,0], doubleComplete:[true,true], start, bestOf, out:$('out').value, finished:false, bot:$('opponent-type').value==='bot', botAverage:Number($('bot-average').value), trackDoubles:$('track-doubles').value==='yes' };
   history = []; dartDraft=[]; pendingVisit=null; $('double-overlay').hidden=true;document.body.classList.remove('dialog-open'); inputMode='total'; multiplier=1; syncMode();
   $('points').value = '';
   $('message').textContent = 'Match gestartet. '+names[0]+' beginnt.';
@@ -26,6 +42,7 @@ function startMatch(e) {
   $('game-screen').hidden = false;
   $('match-description').textContent = `${config.starts[0]} (${outName(config.outs[0])}) vs ${config.starts[1]} (${outName(config.outs[1])}) · ${bestOf===1?'1 Leg':'Best of '+bestOf}`;
   render();
+  scheduleBot();
 }
 
 function outName(out){return out==='single'?'Single Out':out==='master'?'Master Out':'Double Out';}
@@ -143,6 +160,37 @@ function setMode(mode){
   inputMode=mode;multiplier=1;syncMode();
   $('message').textContent=mode==='darts'?'Einzeldart-Eingabe aktiviert.':'Gesamtscore-Eingabe aktiviert.';
 }
+
+function scheduleBot(){
+  stopBot();
+  if(!state || !state.bot || state.finished || state.turn!==1 || pendingVisit || $('game-screen').hidden)return;
+  botTimer=setTimeout(()=>{botTimer=null;botThrow();},850);
+}
+function botThrow(){
+  if(!state || !state.bot || state.finished || state.turn!==1 || pendingVisit)return;
+  const rest=state.scores[1],out=state.outs[1],avg=Math.max(15,Math.min(110,state.botAverage));
+  const path=checkoutPath(rest,out),can=canCheckout(rest,out);
+  // Trefferwahrscheinlichkeit steigt mit der gewählten Bot-Stärke.
+  const chance=Math.min(.80,Math.max(.025,(avg-15)/160));
+  if(can && Math.random()<chance){
+    const darts=rest<=40?1+Math.floor(Math.random()*3):rest<=100?2+Math.floor(Math.random()*2):3;
+    const attempts=out==='single'?0:1+Math.floor(Math.random()*Math.max(1,darts));
+    recordVisit(rest,darts,true,true,attempts,true);
+    scheduleBot();return;
+  }
+  // Realistische Streuung statt identischer Aufnahmen; 180er selten, aber möglich.
+  const spread=(Math.random()+Math.random()+Math.random()-1.5)*40;
+  let value=Math.round(avg+spread);
+  if(Math.random()<Math.max(0,(avg-70)/300))value=180;
+  value=Math.max(0,Math.min(180,value));
+  if(rest<=170){
+    if(out!=='single' && rest-value===1)value=Math.max(0,value-1);
+    if(value>=rest)value=Math.max(0,rest-(out==='single'?1:2));
+  }
+  recordVisit(value,3,true,true,0,false);
+  scheduleBot();
+}
+
 function recordVisit(value,darts,finishingDouble=false,finishingTriple=false,doubleAttempts=0,doubleKnown=true){
   if (!state || state.finished || $('game-screen').hidden) return;
   const i=state.turn,remain=state.scores[i]-value,finish=remain===0;
@@ -173,7 +221,7 @@ function recordVisit(value,darts,finishingDouble=false,finishingTriple=false,dou
       }
     }else{state.turn=1-i;$('message').textContent=state.names[i]+': '+value+' Punkte.';}
   }
-  $('points').value='';render();return true;
+  $('points').value='';render();scheduleBot();return true;
 }
 function beginDoubleAsk(visit){
  pendingVisit=visit;
@@ -202,7 +250,7 @@ document.querySelectorAll('[data-double]').forEach(b=>b.addEventListener('click'
 $('double-more').addEventListener('click',()=>{$('double-custom').hidden=false;$('double-save').hidden=false;});
 $('double-save').addEventListener('click',()=>{const raw=$('double-custom').value.trim();completeDoubleAsk(raw===''?NaN:Number(raw));});
 function submit(){
-  if(!state || state.finished || $('game-screen').hidden || pendingVisit)return;
+  if(!state || state.finished || $('game-screen').hidden || pendingVisit || (state.bot && state.turn===1))return;
   const raw=$('points').value.trim(),v=Number(raw);
   if(inputMode==='darts'){
     if(raw===''||!Number.isInteger(v)||v<0||v>20){$('message').textContent='Trefferfeld 0 bis 20 eingeben, oder 25 / Bull / Fehlwurf wählen.';return;}
@@ -217,7 +265,7 @@ function submit(){
   recordVisit(v,3,true,true,0,!(state.outs[i]!=='single' && remaining<=170));
 }
 function addDart(value,name,isDouble=false,isTriple=false){
-  if(!state||state.finished||inputMode!=='darts'||pendingVisit)return;
+  if(!state||state.finished||inputMode!=='darts'||pendingVisit||(state.bot&&state.turn===1))return;
   const i=state.turn,prior=dartDraft.reduce((a,d)=>a+d.value,0);
   const rest=state.scores[i]-prior-value;
   const validFinish=state.outs[i]==='single'||(state.outs[i]==='double'&&isDouble)||(state.outs[i]==='master'&&(isDouble||isTriple));
@@ -244,13 +292,13 @@ $('dart-25').addEventListener('click',()=>addDart(25,'25'));
 $('dart-bull').addEventListener('click',()=>addDart(50,'BULL',true));
 $('dart-miss').addEventListener('click',()=>addDart(0,'MISS'));
 document.querySelectorAll('[data-digit]').forEach(b=>b.addEventListener('click',()=>{
-  if (!pendingVisit && !state?.finished && $('points').value.length<(inputMode==='darts'?2:3)) $('points').value+=b.dataset.digit;
+  if (!pendingVisit && !state?.finished && !(state?.bot&&state.turn===1) && $('points').value.length<(inputMode==='darts'?2:3)) $('points').value+=b.dataset.digit;
 }));
 $('clear').addEventListener('click',()=>{if(!pendingVisit)$('points').value='';});
 $('backspace').addEventListener('click',()=>{if(!pendingVisit)$('points').value=$('points').value.slice(0,-1);});
 // Globale Tastatureingabe funktioniert auch nach Klicks auf Undo, Buttons und andere Bereiche.
 window.addEventListener('keydown',e=>{
-  if (!state || state.finished || $('game-screen').hidden || pendingVisit || e.ctrlKey || e.altKey || e.metaKey) return;
+  if (!state || state.finished || $('game-screen').hidden || pendingVisit || (state.bot&&state.turn===1) || e.ctrlKey || e.altKey || e.metaKey) return;
   // Die Namenseingabe im Match-Setup bleibt unberührt; im Scorer ist das Punktefeld readonly.
   if (e.target.matches('input:not(#points),textarea,select,[contenteditable="true"]')) return;
   const field=$('points');
@@ -269,7 +317,7 @@ $('undo').addEventListener('click',()=>{
   if(pendingVisit){$('double-error').textContent='Bitte die Doppelversuche bestätigen, bevor das Spiel weitergeht.';return;}
   if(dartDraft.length){dartDraft.pop();$('points').value='';syncMode();$('message').textContent='Letzten Dart zurückgenommen.';return;}
   if (!history.length) { $('message').textContent='Nichts rückgängig zu machen.'; return; }
-  state=history.pop(); $('message').classList.remove('match-finished');
-  $('message').textContent='Letzte Aufnahme zurückgenommen.'; render();
+  stopBot();state=history.pop(); $('message').classList.remove('match-finished');
+  $('message').textContent='Letzte Aufnahme zurückgenommen.'; render();scheduleBot();
 });
 showSetup();
