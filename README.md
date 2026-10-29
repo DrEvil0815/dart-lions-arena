@@ -1,1 +1,0 @@
-Dart Lions Arena V1.0 – visuelle Anpassung im originalen schwarz-rot-goldenen Arena-Stil. Matchstand im Spielerfeld, zentrale Aufnahmehistorie, Checkout-Farben und äußere Trefferstatistiken bleiben erhalten.
