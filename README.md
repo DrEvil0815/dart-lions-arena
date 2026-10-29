@@ -7,3 +7,6 @@ Spiele: Around the Clock, Zahlenjagd, Bullseye-Challenge, Highscore. Treffer: di
 Installation: Alle sieben Dateien in die Wurzel des GitHub-Repositories hochladen, alte Versionen überschreiben. Für dauerhafte Zuordnung pro PC die Board-Nummer einmal auswählen. Browserdaten nicht löschen, wenn lokale Ergebnisse erhalten bleiben sollen.
 
 Hinweis: Die Online-Synchronisierung ist bewusst nicht implementiert.
+
+
+V2.5: Kritischen CSS-Fehler behoben: [hidden]-Bereiche bleiben ausgeblendet. Startmenü als vier gleichmäßige Kacheln, Matchvorbereitung erst nach Auswahl.
