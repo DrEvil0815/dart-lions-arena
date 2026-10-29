@@ -320,4 +320,8 @@ $('undo').addEventListener('click',()=>{
   stopBot();state=history.pop(); $('message').classList.remove('match-finished');
   $('message').textContent='Letzte Aufnahme zurückgenommen.'; render();scheduleBot();
 });
-showSetup();
+// Start immer im Hauptmenü; Setup erst nach einer Auswahl.
+$('choice-screen').hidden=false;
+$('setup-screen').hidden=true;
+$('game-screen').hidden=true;
+$('kids-screen').hidden=true;
