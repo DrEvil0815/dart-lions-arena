@@ -1,1 +1,3 @@
-V2.6: Hauptmenü mit vier großen Buttons, initial nur Menü sichtbar. Kids Academy direkt anklickbar. Cache-Busting für CSS/JS. Alle sechs PCs arbeiten unabhängig. Dateien komplett ins Repository-Root hochladen.
+Dart Lions Arena V2.7 – Kids Academy Startfix.
+Fehler: kids.js griff auf das in V2.6 entfernte Element kids-common zu und brach beim Laden ab. Der Zugriff wurde entfernt. Browser-Cache über v=27 umgangen.
+Alle sieben Dateien ins GitHub-Repository-Hauptverzeichnis hochladen.

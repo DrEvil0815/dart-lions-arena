@@ -7,10 +7,10 @@ const key='dartlions-kids-v24-local';
 const legacyKey='dartlions-kids-v23';
 const initial=()=>Array.from({length:6},(_,i)=>({name:'',game:games[i%4][0],hits:[],done:false}));
 let boards=initial(),results=[],current=0;
-try{const saved=JSON.parse(localStorage.getItem(key));if(Array.isArray(saved.boards)&&saved.boards.length===6)boards=saved.boards;if(Array.isArray(saved.results))results=saved.results;}catch{}
+try{const saved=JSON.parse(localStorage.getItem(key));if(saved&&Array.isArray(saved.boards)&&saved.boards.length===6)boards=saved.boards;if(Array.isArray(saved.results))results=saved.results;}catch{}
 const save=()=>{try{localStorage.setItem(key,JSON.stringify({boards,results,current}));}catch{}};
 const options=()=>games.map(([v,t])=>`<option value="${v}">${t}</option>`).join('');
-el('kids-common').innerHTML=options();el('kids-game').innerHTML=options();
+el('kids-game').innerHTML=options();
 el('kids-board-select').innerHTML=boards.map((_,i)=>`<option value="${i}">Board ${i+1}</option>`).join('');
 el('kids-hit').innerHTML=['MISS','SB','BULL',...Array.from({length:20},(_,i)=>i+1).flatMap(n=>['S','D','T'].map(m=>m+n))].map(v=>`<option value="${v}">${v==='MISS'?'Fehlwurf':v==='SB'?'Single Bull (25)':v==='BULL'?'Bullseye (50)':v}</option>`).join('');
 const score=h=>h==='BULL'?50:h==='SB'?25:h==='MISS'?0:Number(h.slice(1))*(h[0]==='T'?3:h[0]==='D'?2:1);
