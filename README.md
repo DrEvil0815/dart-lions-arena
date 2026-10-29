@@ -1,3 +1,1 @@
-Dart Lions Arena V2.7 – Kids Academy Startfix.
-Fehler: kids.js griff auf das in V2.6 entfernte Element kids-common zu und brach beim Laden ab. Der Zugriff wurde entfernt. Browser-Cache über v=27 umgangen.
-Alle sieben Dateien ins GitHub-Repository-Hauptverzeichnis hochladen.
+Dart Lions Trainings-Arena V2.8 – Kids Academy: Gesamtscore mit Enter bestätigen; Eingabefeld bleibt fokussiert. Leere Eingabe wird nicht als 0 gewertet. Alle Dateien in das Root-Verzeichnis des GitHub-Repositories hochladen.

@@ -27,7 +27,7 @@ for(const o of el('kids-entry-mode').options)o.disabled=o.value==='total'&&!allo
 const entry=el('kids-entry-mode').value;el('kids-dartboard').hidden=entry!=='board';el('kids-manual').hidden=entry!=='manual';el('kids-total').hidden=entry!=='total';el('kids-log').textContent=b.hits.length?`Letzte Treffer: ${b.hits.slice(-18).join(' · ')}`:'Noch keine Treffer erfasst.';
 }
 function addHit(hit){const b=boards[current];if(b.done||progress(b).finished)return;if(b.hits.length>=90)return;b.hits.push(hit);save();render();}
-function addTotal(){const b=boards[current];if(!allowedTotal(b))return;const v=Number(el('kids-total-score').value);if(!Number.isInteger(v)||v<0||v>180){alert('Bitte einen Gesamtscore zwischen 0 und 180 eingeben.');return;}if(b.hits.length>=30)return;b.hits.push('TOTAL:'+v,'TOTAL:0','TOTAL:0');el('kids-total-score').value='';save();render();}
+function addTotal(){const b=boards[current];if(!allowedTotal(b))return;const input=el('kids-total-score');if(input.value.trim()===''){input.focus();return;}const v=Number(input.value);if(!Number.isInteger(v)||v<0||v>180){alert('Bitte einen Gesamtscore zwischen 0 und 180 eingeben.');return;}if(b.hits.length>=30)return;b.hits.push('TOTAL:'+v,'TOTAL:0','TOTAL:0');el('kids-total-score').value='';save();render();input.focus();}
 // A total visit is stored as a three-dart group. For highscore, score the first value only.
 function calc(b){if(b.game==='high')return b.hits.reduce((s,h)=>s+(h.startsWith('TOTAL:')?Number(h.slice(6)):score(h)),0);return progress(b).points;}
 function finish(){const b=boards[current];if(!b.hits.length){alert('Bitte zuerst Treffer erfassen.');return;}b.done=true;results.unshift({date:new Date().toLocaleString('de-DE'),name:b.name||`Board ${current+1}`,board:current+1,game:gameName(b.game),points:calc(b),darts:b.hits.length});save();render();alert('Ergebnis gespeichert.');}
@@ -48,6 +48,7 @@ el('kids-name').addEventListener('change',()=>{boards[current].name=el('kids-nam
 el('kids-game').addEventListener('change',()=>{const b=boards[current];if(b.hits.length&&!confirm('Übung wechseln und bisherige Treffer dieses Boards zurücksetzen?')){render();return;}b.game=el('kids-game').value;b.hits=[];b.done=false;save();render();});
 el('kids-entry-mode').addEventListener('change',render);
 el('kids-add-hit').addEventListener('click',()=>addHit(el('kids-hit').value));el('kids-add-total').addEventListener('click',addTotal);
+el('kids-total-score').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();addTotal();}});
 el('kids-dartboard').addEventListener('click',e=>{const hit=e.target.closest('[data-hit]');if(hit)addHit(hit.dataset.hit);});
 el('kids-miss').addEventListener('click',()=>addHit('MISS'));
 el('kids-undo').addEventListener('click',()=>{const b=boards[current];if(b.done){alert('Abgeschlossenes Training kann nicht geändert werden.');return;}b.hits.pop();save();render();});
