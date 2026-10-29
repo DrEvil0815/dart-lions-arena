@@ -8,7 +8,7 @@ function showSetup() {
   $('game-screen').hidden = true;
   $('setup-screen').hidden = false;
   $('points').value = '';
-  dartDraft=[]; pendingVisit=null; $('double-ask').hidden=true;
+  dartDraft=[]; pendingVisit=null; $('double-overlay').hidden=true;
 }
 function startMatch(e) {
   if (e) e.preventDefault();
@@ -17,8 +17,8 @@ function startMatch(e) {
   if (!names[0] || !names[1]) { alert('Bitte beide Spielernamen eingeben.'); return; }
   let config;try{config=handicapConfig();}catch(err){alert(err.message);return;}
   state = { scores:config.starts.slice(), starts:config.starts.slice(), outs:config.outs.slice(), handicap:config.mode, legs:[0,0], names, turn:0, legStarter:0,
-    throws:[0,0], scored:[0,0], last:[null,null], max180:[0,0], highFinishes:[[],[]], shortLegs:[[],[]], legDarts:[0,0], visits:[[],[]], hits:[{'40':0,'60':0,'80':0,'100':0,'180':0},{'40':0,'60':0,'80':0,'100':0,'180':0}], doubles:[0,0], doubleHits:[0,0], doubleComplete:[true,true], start, bestOf, out:$('out').value, finished:false };
-  history = []; dartDraft=[]; pendingVisit=null; $('double-ask').hidden=true; inputMode='total'; multiplier=1; syncMode();
+    throws:[0,0], scored:[0,0], last:[null,null], max180:[0,0], highFinishes:[[],[]], shortLegs:[[],[]], legDarts:[0,0], visits:[[],[]], hits:[{'40':0,'60':0,'80':0,'100':0,'180':0},{'40':0,'60':0,'80':0,'100':0,'180':0}], doubles:[0,0], doubleHits:[0,0], doubleComplete:[true,true], start, bestOf, out:$('out').value, finished:false, trackDoubles:$('track-doubles').value==='yes' };
+  history = []; dartDraft=[]; pendingVisit=null; $('double-overlay').hidden=true; inputMode='total'; multiplier=1; syncMode();
   $('points').value = '';
   $('message').textContent = 'Match gestartet. '+names[0]+' beginnt.';
   $('message').classList.remove('match-finished');
@@ -113,7 +113,7 @@ function render() {
     const suggestion=checkoutPath(state.scores[i],state.outs[i]);
     $('co-box'+i).hidden=state.finished || state.scores[i]>170 || !suggestion;
     $('co'+i).textContent=suggestion;
-    $('dq'+i).textContent=state.doubles[i]?(100*state.doubleHits[i]/state.doubles[i]).toFixed(1)+' %'+(state.doubleComplete[i]?'':' *'):'–';
+    $('dq'+i).textContent=!state.trackDoubles?'AUS':state.doubles[i]?(100*state.doubleHits[i]/state.doubles[i]).toFixed(1)+' %'+(state.doubleComplete[i]?'':' *'):'–';
     $('avg'+i).textContent = state.throws[i] ? (state.scored[i]/state.throws[i]*3).toFixed(2) : '0.00';
     $(i?'b':'a').classList.toggle('active', !state.finished && state.turn===i);
   }
@@ -177,7 +177,9 @@ function recordVisit(value,darts,finishingDouble=false,finishingTriple=false,dou
 }
 function beginDoubleAsk(visit){
  pendingVisit=visit;
- $('double-ask').hidden=false;
+ $('double-overlay').hidden=false;
+ $('double-error').textContent='';
+ $('double-custom').value='';
  $('double-title').textContent=visit.finish?'CHECKOUT BESTÄTIGEN':'DOPPELVERSUCHE';
  $('double-prompt').textContent=visit.finish?'Wie viele Darts in dieser Aufnahme und wie viele Doppelversuche?':'Wie viele Darts wurden in dieser Aufnahme auf Doppel versucht?';
  let dartsEl=$('finish-darts');
@@ -189,16 +191,16 @@ function beginDoubleAsk(visit){
 function completeDoubleAsk(attempts){
  if(!pendingVisit)return;
  const visit=pendingVisit,i=state.turn;
- if(!Number.isInteger(attempts)||attempts<0||attempts>99)return;
- if(visit.finish && state.outs[i]==='double' && attempts<1){$('message').textContent='Bei Double/Master Out muss der Checkout mindestens einen erfolgreichen Doppel-/Master-Versuch enthalten. Für Master Out kann ein Triple das Finish sein.';return;}
+ if(!Number.isInteger(attempts)||attempts<0||attempts>99){$('double-error').textContent='Bitte eine gültige Anzahl zwischen 0 und 99 eingeben.';return;}
+ if(visit.finish && state.outs[i]==='double' && attempts<1){$('double-error').textContent='Bei Double Out ist mindestens ein Doppelversuch erforderlich.';return;}
  const darts=visit.finish?Number($('finish-darts').value):3;
- if(visit.finish && attempts>darts+state.legDarts[i]){$('message').textContent='Mehr Doppelversuche als bisher geworfene Darts sind nicht möglich.';return;}
- pendingVisit=null;$('double-ask').hidden=true;
+ if(visit.finish && attempts>darts+state.legDarts[i]){$('double-error').textContent='Mehr Doppelversuche als bisher geworfene Darts sind nicht möglich.';return;}
+ pendingVisit=null;$('double-overlay').hidden=true;
  recordVisit(visit.value,darts,true,state.outs[i]==='master',attempts,true);
 }
 document.querySelectorAll('[data-double]').forEach(b=>b.addEventListener('click',()=>completeDoubleAsk(Number(b.dataset.double))));
 $('double-more').addEventListener('click',()=>{$('double-custom').hidden=false;$('double-save').hidden=false;});
-$('double-save').addEventListener('click',()=>completeDoubleAsk(Number($('double-custom').value)));
+$('double-save').addEventListener('click',()=>{const raw=$('double-custom').value.trim();completeDoubleAsk(raw===''?NaN:Number(raw));});
 function submit(){
   if(!state || state.finished || $('game-screen').hidden || pendingVisit)return;
   const raw=$('points').value.trim(),v=Number(raw);
@@ -209,8 +211,9 @@ function submit(){
   if(raw===''||!Number.isInteger(v)||v<0||v>180){$('message').textContent='Bitte 0 bis 180 Punkte eingeben.';return;}
   // Im Gesamtscore-Modus bestätigt der Spieler bei exaktem Rest ein regelkonformes Finish.
   const i=state.turn,remaining=state.scores[i],finish=v===remaining;
-  if(finish){beginDoubleAsk({value:v,finish:true});return;}
-  if(state.outs[i]!=='single' && remaining<=170 && remaining-v>=0 && remaining-v<=60){beginDoubleAsk({value:v,finish:false});return;}
+  if(finish && state.trackDoubles){beginDoubleAsk({value:v,finish:true});return;}
+  if(finish){recordVisit(v,3,true,true,0,false);return;}
+  if(state.trackDoubles && state.outs[i]!=='single' && remaining<=170 && remaining-v>=0 && remaining-v<=60){beginDoubleAsk({value:v,finish:false});return;}
   recordVisit(v,3,true,true,0,!(state.outs[i]!=='single' && remaining<=170));
 }
 function addDart(value,name,isDouble=false,isTriple=false){
@@ -232,19 +235,19 @@ function addDart(value,name,isDouble=false,isTriple=false){
   syncMode();
 }
 $('setup-form').addEventListener('submit',startMatch);
-$('new').addEventListener('click',()=>{ if(confirm('Aktuelles Match verlassen und neues Match vorbereiten?')) showSetup(); });
+$('new').addEventListener('click',()=>{ if(pendingVisit)return; if(confirm('Aktuelles Match verlassen und neues Match vorbereiten?')) showSetup(); });
 $('score-form').addEventListener('submit',e=>{e.preventDefault();submit();});
-$('mode-total').addEventListener('click',()=>setMode('total'));
-$('mode-darts').addEventListener('click',()=>setMode('darts'));
+$('mode-total').addEventListener('click',()=>{if(!pendingVisit)setMode('total')});
+$('mode-darts').addEventListener('click',()=>{if(!pendingVisit)setMode('darts')});
 document.querySelectorAll('[data-mult]').forEach(b=>b.addEventListener('click',()=>{multiplier=Number(b.dataset.mult);syncMode();}));
 $('dart-25').addEventListener('click',()=>addDart(25,'25'));
 $('dart-bull').addEventListener('click',()=>addDart(50,'BULL',true));
 $('dart-miss').addEventListener('click',()=>addDart(0,'MISS'));
 document.querySelectorAll('[data-digit]').forEach(b=>b.addEventListener('click',()=>{
-  if (!state?.finished && $('points').value.length<(inputMode==='darts'?2:3)) $('points').value+=b.dataset.digit;
+  if (!pendingVisit && !state?.finished && $('points').value.length<(inputMode==='darts'?2:3)) $('points').value+=b.dataset.digit;
 }));
-$('clear').addEventListener('click',()=>$('points').value='');
-$('backspace').addEventListener('click',()=>$('points').value=$('points').value.slice(0,-1));
+$('clear').addEventListener('click',()=>{if(!pendingVisit)$('points').value='';});
+$('backspace').addEventListener('click',()=>{if(!pendingVisit)$('points').value=$('points').value.slice(0,-1);});
 // Globale Tastatureingabe funktioniert auch nach Klicks auf Undo, Buttons und andere Bereiche.
 window.addEventListener('keydown',e=>{
   if (!state || state.finished || $('game-screen').hidden || pendingVisit || e.ctrlKey || e.altKey || e.metaKey) return;
@@ -263,7 +266,7 @@ window.addEventListener('keydown',e=>{
   }
 });
 $('undo').addEventListener('click',()=>{
-  if(pendingVisit){pendingVisit=null;$('double-ask').hidden=true;$('message').textContent='Nachfrage abgebrochen.';return;}
+  if(pendingVisit){$('double-error').textContent='Bitte die Doppelversuche bestätigen, bevor das Spiel weitergeht.';return;}
   if(dartDraft.length){dartDraft.pop();$('points').value='';syncMode();$('message').textContent='Letzten Dart zurückgenommen.';return;}
   if (!history.length) { $('message').textContent='Nichts rückgängig zu machen.'; return; }
   state=history.pop(); $('message').classList.remove('match-finished');
