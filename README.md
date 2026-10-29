@@ -1,5 +1,5 @@
-Dart Lions Arena V1.8
-- Doppelversuche: Dialog mittig, verpflichtend, bei Finish oder plausiblen Doppelversuchen (bei <=170 Rest und <=100 Rest vor/nach Aufnahme).
-- Match und Setup verwenden die verfügbare Fensterhöhe; innere Historie/Setup scrollen bei Bedarf, die Seite selbst nicht.
-- Dr. Evil Logo mit © 2026.
-- Achtung: Dart-Lions-Original-Logo muss weiterhin als dart-lions-logo.png ergänzt werden.
+Dart Lions Trainings-Arena V1.9
+
+Neu: Das unveränderte Original-Dart-Lions-Logo ist als dart-lions-logo.png eingebunden und erscheint in der Kopfzeile.
+
+Alle Dateien einschließlich beider Logos in das Stammverzeichnis des GitHub-Repositories hochladen.
