@@ -68,3 +68,15 @@
 .history-row .history-darts{color:#e9b85a;background:#3a2629;border-left:1px solid #855038;border-right:1px solid #855038;font-size:.78em;display:flex;align-items:center;justify-content:center}
 .history-darts-head{color:#e9b85a;font-size:.85em}
 @media(max-width:520px){.history-head,.history-row{grid-template-columns:minmax(0,1fr) minmax(30px,.52fr) minmax(0,1fr)}}
+
+/* V1.4: Umschaltbare Punkteingabe, ohne zusätzliche Bildschirmhöhe zu verschwenden */
+.entry-mode{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:5px 0}
+.entry-mode button,.multiplier button,.dart-special button{border:1px solid #86523a;border-radius:6px;background:#231a20;color:#f3d19a;padding:7px 4px;font-size:clamp(9px,.85vw,12px);font-weight:800;cursor:pointer}
+.entry-mode button.selected,.multiplier button.selected{background:linear-gradient(120deg,#7b242e,#a66a30);color:white;border-color:#efc46a}
+.dart-controls{margin:2px 0 5px}.dart-controls[hidden]{display:none}
+.multiplier{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:4px}
+.dart-special{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.dart-progress{text-align:center;color:#f4ca77;font-weight:700;font-size:11px;padding:4px}
+@media(max-height:750px){.entry-mode button,.multiplier button,.dart-special button{padding:4px 2px}.dart-progress{padding:2px}}
+/* V1.5 Handicap und optionale Doppel-Nachfrage */
+.handicap-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}.handicap-fields[hidden],.double-ask[hidden],.handicap-fields [hidden]{display:none!important}.handicap-player{border:1px solid rgba(220,168,71,.38);background:rgba(19,15,18,.65);border-radius:12px;padding:12px;display:grid;gap:10px}.handicap-player h3{margin:0;color:#e7b84e;font-size:14px}.handicap-player label{display:grid;gap:6px}.handicap-preview{grid-column:1/-1;margin:0;color:#f1cb7d;font-size:13px;text-align:center}.double-ask{background:#261b20;border:2px solid #d6a54b;border-radius:12px;padding:12px;margin:8px 0;display:grid;gap:8px}.double-ask strong{color:#f5c56a}.double-ask p{margin:0;font-size:13px}.double-buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.double-ask button{background:#4a3030;border:1px solid #a77943;color:#fff;border-radius:8px;min-height:35px;cursor:pointer}.double-ask select,.double-ask input{padding:8px;background:#171317;color:white;border:1px solid #bb9253;border-radius:6px}.stats{flex-wrap:wrap}.stats>div{min-width:0}@media(max-width:580px){.handicap-fields{grid-template-columns:1fr}}
