@@ -1,7 +1,5 @@
-Dart Lions Arena V1.7 – Branding
-
-Die drei Dateien index.html, style.css, script.js sowie dr-evil-logo.png ins GitHub-Repository-Hauptverzeichnis hochladen.
-
-WICHTIG: Das offizielle Dart-Lions-Logo liegt in diesem Chat nicht als Originaldatei vor. Lade es zusätzlich unter dem Namen dart-lions-logo.png ins gleiche Verzeichnis hoch. Bis dahin erscheint ein kleines DL-Platzhalterzeichen statt eines fremden oder veränderten Logos.
-
-Die Fußzeile enthält "GAME ON! · DART LIONS TRAININGS-ARENA" und darunter "Powered by" mit dem originalen Dr.-Evil-Logo.
+Dart Lions Arena V1.8
+- Doppelversuche: Dialog mittig, verpflichtend, bei Finish oder plausiblen Doppelversuchen (bei <=170 Rest und <=100 Rest vor/nach Aufnahme).
+- Match und Setup verwenden die verfügbare Fensterhöhe; innere Historie/Setup scrollen bei Bedarf, die Seite selbst nicht.
+- Dr. Evil Logo mit © 2026.
+- Achtung: Dart-Lions-Original-Logo muss weiterhin als dart-lions-logo.png ergänzt werden.
