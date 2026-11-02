@@ -46,7 +46,7 @@ window.ArenaCloud=(()=>{
  $('cloud-save-name').addEventListener('click',rename);$('cloud-display-name').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();rename();}});
  $('dash-logout').addEventListener('click',()=> $('cloud-logout').click());
  $('dash-local').addEventListener('click',()=>{document.documentElement.classList.remove('dash-home');$('dashboard').hidden=true;$('choice-screen').hidden=false;document.querySelector('[data-game-type="human"]')?.click();});
- $('dash-training').addEventListener('click',()=>{document.documentElement.classList.remove('dash-home');$('dashboard').hidden=true;$('choice-screen').hidden=false;document.querySelector('[data-game-type="bot"]')?.click();});
+
  $('dash-kids').addEventListener('click',()=>{document.documentElement.classList.remove('dash-home');$('dashboard').hidden=true;$('choice-screen').hidden=false;$('open-kids')?.click();});
  $('return-dashboard').addEventListener('click',()=>{const game=$('game-screen');if(!game.hidden&&!confirm('Laufendes Match verlassen? Nicht gespeicherte Matchdaten gehen verloren.'))return;window.ArenaReturnDashboard?.();});
  $('dash-avatar-file').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file||!user||!selected)return;if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>2*1024*1024){note('Nur JPG, PNG oder WebP bis 2 MB.');return;}const path=user.id+'/'+selected+'.'+({ 'image/png':'png','image/jpeg':'jpg','image/webp':'webp'}[file.type]);const {error}=await client.storage.from('avatars').upload(path,file,{upsert:true,contentType:file.type});if(error){note('Bild nicht gespeichert: '+error.message+' (Storage-Bucket avatars prüfen)');return;}const {error:upErr}=await client.from('profiles').update({avatar_path:path}).eq('id',selected).eq('owner_id',user.id);if(upErr){note(upErr.message);return;}activeProfile().avatar_path=path;await updateDashboard();note('Profilbild gespeichert.');});
@@ -66,5 +66,18 @@ window.ArenaCloud=(()=>{
    return {saved:true};
  }
  async function getTrainings(){if(!client||!user||!selected)return {data:[],error:null};return client.from('training_sessions').select('id,game_mode,finished_at,result_data').eq('owner_id',user.id).eq('profile_id',selected).eq('status','completed').order('finished_at',{ascending:false}).limit(100);}
- return {saveTraining,getTrainings,isLoggedIn:()=>!!user,selectedProfile:()=>selected,playerName:()=>activeProfile()?.display_name||'',note};
+ async function verifyOpponent(email,password){
+   if(!client||!user)return {ok:false,error:'Bitte zuerst mit Spieler 1 anmelden.'};
+   // Separate in-memory auth client: never replace the primary player's session.
+   const secondary=window.supabase.createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false,storageKey:'dart-lions-opponent-temp'}});
+   try{
+     const {data,error}=await secondary.auth.signInWithPassword({email,password});
+     if(error||!data?.user)return {ok:false,error:'Anmeldung des zweiten Spielers fehlgeschlagen.'};
+     if(data.user.id===user.id)return {ok:false,error:'Spieler 2 muss ein anderes Benutzerkonto verwenden.'};
+     const {data:rows,error:profileError}=await secondary.from('profiles').select('id,display_name,is_child').eq('owner_id',data.user.id).eq('is_child',false).limit(1);
+     if(profileError||!rows?.length)return {ok:false,error:'Kein Spielerprofil für dieses Konto gefunden.'};
+     return {ok:true,id:rows[0].id,name:rows[0].display_name};
+   }finally{await secondary.auth.signOut({scope:'local'}).catch(()=>{});}
+ }
+ return {saveTraining,getTrainings,verifyOpponent,isLoggedIn:()=>!!user,selectedProfile:()=>selected,playerName:()=>activeProfile()?.display_name||'',note};
 })();

@@ -5,16 +5,37 @@ let state = null, history = [];
 let inputMode = 'total', multiplier = 1, dartDraft = [], pendingVisit = null;
 let botTimer = null;
 function stopBot(){if(botTimer!==null){clearTimeout(botTimer);botTimer=null;}}
-function opponentChanged(){const bot=$('opponent-type').value==='bot';$('bot-level-wrap').hidden=!bot;$('p2').value=bot?'Dart-Bot':($('p2').value==='Dart-Bot'?'Spieler 2':$('p2').value);$('p2').readOnly=bot;}
-function selectGameType(type){
-  if(type==='online')return;
-  $('opponent-type').value=type;
-  opponentChanged();
-  $('choice-screen').hidden=true;
-  $('setup-screen').hidden=false;
+let registeredOpponent=null;
+function opponentChanged(){
+ const type=$('opponent-type').value;
+ $('bot-level-wrap').hidden=type!=='bot';
+ $('registered-opponent-wrap').hidden=type!=='registered';
+ $('p2-wrap').hidden=type==='registered';
+ $('p2').readOnly=type!=='guest';
+ $('p2').required=type!=='registered';
+ if(type==='bot')$('p2').value='Dart-Bot';
+ else if(type==='registered')$('p2').value=registeredOpponent?.name||'';
+ else if($('p2').value==='Dart-Bot'||!$('p2').value.trim())$('p2').value='Gast';
 }
-document.querySelectorAll('[data-game-type]').forEach(button=>button.addEventListener('click',()=>selectGameType(button.dataset.gameType)));
-$('back-to-choice').addEventListener('click',()=>{$('setup-screen').hidden=true;$('choice-screen').hidden=false;});
+function selectGameType(){
+ $('choice-screen').hidden=true;
+ $('setup-screen').hidden=false;
+}
+document.querySelectorAll('[data-game-type]').forEach(button=>button.addEventListener('click',()=>selectGameType()));
+$('back-to-choice').addEventListener('click',()=>{window.ArenaReturnDashboard?.();});
+for(let n=15;n<=110;n+=5){const o=document.createElement('option');o.value=n;o.textContent=n;$('bot-average').append(o);} $('bot-average').value='45';
+$('opponent-type').addEventListener('change',()=>{registeredOpponent=null;$('opponent-status').textContent='';opponentChanged();});
+$('opponent-verify').addEventListener('click',async()=>{
+ const email=$('opponent-email').value.trim(),password=$('opponent-password').value;
+ const status=$('opponent-status');
+ if(!email||!password){status.textContent='Bitte E-Mail und Passwort eingeben.';return;}
+ status.textContent='Spieler wird überprüft …';
+ const result=await window.ArenaCloud?.verifyOpponent?.(email,password);
+ $('opponent-password').value='';
+ if(!result?.ok){registeredOpponent=null;status.textContent=result?.error||'Anmeldung fehlgeschlagen.';return;}
+ registeredOpponent={id:result.id,name:result.name};$('p2').value=result.name;
+ status.textContent='Angemeldet: '+result.name+' · Hinweis: Matchstatistiken für Spieler 2 werden noch nicht synchronisiert.';
+});
 opponentChanged();
 function clone(value) { return JSON.parse(JSON.stringify(value)); }
 function showSetup() {
@@ -30,10 +51,11 @@ function startMatch(e) {
   const start = Number($('start').value), bestOf = Number($('bestof').value);
   stopBot();
   const names = [$('p1').value.trim(), $('p2').value.trim()];
+  if($('opponent-type').value==='registered'&&!registeredOpponent){alert('Bitte zuerst den registrierten Gegner anmelden.');return;}
   if (!names[0] || !names[1]) { alert('Bitte beide Spielernamen eingeben.'); return; }
   let config;try{config=handicapConfig();}catch(err){alert(err.message);return;}
   state = { scores:config.starts.slice(), starts:config.starts.slice(), outs:config.outs.slice(), handicap:config.mode, legs:[0,0], names, turn:0, legStarter:0,
-    throws:[0,0], scored:[0,0], last:[null,null], max180:[0,0], highFinishes:[[],[]], shortLegs:[[],[]], legDarts:[0,0], visits:[[],[]], hits:[{'40':0,'60':0,'80':0,'100':0,'180':0},{'40':0,'60':0,'80':0,'100':0,'180':0}], doubles:[0,0], doubleHits:[0,0], doubleComplete:[true,true], start, bestOf, out:$('out').value, finished:false, bot:$('opponent-type').value==='bot', botAverage:Number($('bot-average').value), trackDoubles:$('track-doubles').value==='yes' };
+    throws:[0,0], scored:[0,0], last:[null,null], max180:[0,0], highFinishes:[[],[]], shortLegs:[[],[]], legDarts:[0,0], visits:[[],[]], hits:[{'40':0,'60':0,'80':0,'100':0,'180':0},{'40':0,'60':0,'80':0,'100':0,'180':0}], doubles:[0,0], doubleHits:[0,0], doubleComplete:[true,true], start, bestOf, out:$('out').value, finished:false, opponentType:$('opponent-type').value, opponentProfileId:$('opponent-type').value==='registered'?registeredOpponent?.id:null, bot:$('opponent-type').value==='bot', botAverage:Number($('bot-average').value), trackDoubles:$('track-doubles').value==='yes' };
   history = []; dartDraft=[]; pendingVisit=null; $('double-overlay').hidden=true;document.body.classList.remove('dialog-open'); inputMode='total'; multiplier=1; syncMode();
   $('points').value = '';
   $('message').textContent = 'Match gestartet. '+names[0]+' beginnt.';
