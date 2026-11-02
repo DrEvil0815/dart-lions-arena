@@ -210,3 +210,8 @@ html:not(.auth-locked):not(.auth-pending) #cloud-panel{display:none!important}
 
 /* v4.2: hidden sections must never appear alongside the active view */
 #dashboard[hidden],#choice-screen[hidden],#setup-screen[hidden],#game-screen[hidden],#kids-screen[hidden]{display:none!important}
+
+/* v4.3: Dashboard never overlays another screen, including bot and kids */
+#dashboard[hidden]{display:none!important;}
+html:not(.dash-home) #dashboard{display:none!important;}
+html.dash-home #dashboard:not([hidden]){display:block!important;}

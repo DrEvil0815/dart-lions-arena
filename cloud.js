@@ -6,7 +6,7 @@ window.ArenaCloud=(()=>{
  const $=id=>document.getElementById(id);
  const client=window.supabase?.createClient(url,key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
  let user=null, profiles=[],selected=null,registerMode=false;
- const gate=()=>{document.documentElement.classList.toggle('auth-locked',!user);document.documentElement.classList.remove('auth-pending');if(user){const subpageOpen=['setup-screen','game-screen','kids-screen'].some(id=>!$(id).hidden);if(!subpageOpen){document.documentElement.classList.add('dash-home');$('dashboard').hidden=false;}}else{document.documentElement.classList.remove('dash-home');$('dashboard').hidden=true;}$('return-dashboard').hidden=!user;};
+ const gate=()=>{document.documentElement.classList.toggle('auth-locked',!user);document.documentElement.classList.remove('auth-pending');if(user){const otherPageOpen=['choice-screen','setup-screen','game-screen','kids-screen'].some(id=>!$(id).hidden);if(!otherPageOpen){document.documentElement.classList.add('dash-home');$('dashboard').hidden=false;}else{document.documentElement.classList.remove('dash-home');$('dashboard').hidden=true;}}else{document.documentElement.classList.remove('dash-home');$('dashboard').hidden=true;}$('return-dashboard').hidden=!user||!$('dashboard').hidden;};
  const note=(s)=>{$('cloud-message').textContent=s;};
  const state=s=>{$('cloud-state').textContent=s;};
  async function refresh(){
