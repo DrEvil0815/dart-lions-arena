@@ -6,9 +6,20 @@ let inputMode = 'total', multiplier = 1, dartDraft = [], pendingVisit = null;
 let botTimer = null;
 function stopBot(){if(botTimer!==null){clearTimeout(botTimer);botTimer=null;}}
 let registeredOpponent=null;
+let savedHumanHandicapMode="off";
 function opponentChanged(){
  const type=$('opponent-type').value;
  $('bot-level-wrap').hidden=type!=='bot';
+ const handicapSelect=$('handicap-mode');
+ if(type==='bot'){
+  if(!$('handicap-mode-wrap').hidden)savedHumanHandicapMode=handicapSelect.value;
+  handicapSelect.value='off';
+  $('handicap-mode-wrap').hidden=true;
+ }else{
+  if($('handicap-mode-wrap').hidden)handicapSelect.value=savedHumanHandicapMode;
+  $('handicap-mode-wrap').hidden=false;
+ }
+ refreshHandicap();
  $('registered-opponent-wrap').hidden=type!=='registered';
  $('p2-wrap').hidden=type==='registered';
  $('p2').readOnly=type!=='guest';
@@ -69,7 +80,7 @@ function startMatch(e) {
 
 function outName(out){return out==='single'?'Single Out':out==='master'?'Master Out':'Double Out';}
 function handicapConfig(){
- const mode=$('handicap-mode').value,base=Number($('start').value);
+ const mode=$('opponent-type').value==='bot'?'off':$('handicap-mode').value,base=Number($('start').value);
  if(mode==='off')return {mode,starts:[base,base],outs:[$('out').value,$('out').value]};
  const outs=[$('out0').value,$('out1').value];
  if(mode==='manual')return {mode,starts:[Number($('start0').value),Number($('start1').value)],outs};
