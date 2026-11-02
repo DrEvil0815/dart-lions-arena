@@ -4,7 +4,7 @@ window.ArenaCloud=(()=>{
  const url='https://bdksasxpkyedqsiwhdrv.supabase.co';
  const key='sb_publishable_LeFzQgloy5_uTM7dBBB7YA_k6qbOO7o';
  const $=id=>document.getElementById(id);
- const on=(id,event,fn)=>{const element=$(id);if(element)element.addEventListener(event,fn);else console.warn('[Arena] Optionales Element fehlt:',id);};
+ const on=(id,event,legacyOrFn,maybeFn)=>{const fn=typeof maybeFn==='function'?maybeFn:legacyOrFn;const element=$(id);if(element&&typeof fn==='function')element.addEventListener(event,fn);else console.warn('[Arena] Eventbindung nicht möglich:',id,event);};
  const client=window.supabase?.createClient(url,key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
  let user=null, profiles=[],selected=null,registerMode=false;
  const gate=()=>{document.documentElement.classList.toggle('auth-locked',!user);document.documentElement.classList.remove('auth-pending');if(user){const otherPageOpen=['choice-screen','setup-screen','game-screen','kids-screen'].some(id=>!$(id).hidden);if(!otherPageOpen){document.documentElement.classList.add('dash-home');$('dashboard').hidden=false;}else{document.documentElement.classList.remove('dash-home');$('dashboard').hidden=true;}}else{document.documentElement.classList.remove('dash-home');$('dashboard').hidden=true;}$('return-dashboard').hidden=!user||!$('dashboard').hidden;};
