@@ -6,7 +6,7 @@ window.ArenaCloud=(()=>{
  const $=id=>document.getElementById(id);
  const client=window.supabase?.createClient(url,key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
  let user=null, profiles=[],selected=null,registerMode=false;
- const gate=()=>{document.documentElement.classList.toggle('auth-locked',!user);document.documentElement.classList.remove('auth-pending');if(user)document.documentElement.classList.add('dash-home');else document.documentElement.classList.remove('dash-home');$('return-dashboard').hidden=!user;};
+ const gate=()=>{document.documentElement.classList.toggle('auth-locked',!user);document.documentElement.classList.remove('auth-pending');if(user){const subpageOpen=['setup-screen','game-screen','kids-screen'].some(id=>!$(id).hidden);if(!subpageOpen){document.documentElement.classList.add('dash-home');$('dashboard').hidden=false;}}else{document.documentElement.classList.remove('dash-home');$('dashboard').hidden=true;}$('return-dashboard').hidden=!user;};
  const note=(s)=>{$('cloud-message').textContent=s;};
  const state=s=>{$('cloud-state').textContent=s;};
  async function refresh(){
@@ -45,9 +45,9 @@ window.ArenaCloud=(()=>{
  $('cloud-profile').addEventListener('change',()=>{selected=$('cloud-profile').value;updateName();});
  $('cloud-save-name').addEventListener('click',rename);$('cloud-display-name').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();rename();}});
  $('dash-logout').addEventListener('click',()=> $('cloud-logout').click());
- $('dash-local').addEventListener('click',()=>{document.documentElement.classList.remove('dash-home');$('choice-screen').hidden=false;document.querySelector('[data-game-type="human"]')?.click();});
- $('dash-training').addEventListener('click',()=>{document.documentElement.classList.remove('dash-home');$('choice-screen').hidden=false;document.querySelector('[data-game-type="bot"]')?.click();});
- $('dash-kids').addEventListener('click',()=>{document.documentElement.classList.remove('dash-home');$('choice-screen').hidden=false;$('open-kids')?.click();});
+ $('dash-local').addEventListener('click',()=>{document.documentElement.classList.remove('dash-home');$('dashboard').hidden=true;$('choice-screen').hidden=false;document.querySelector('[data-game-type="human"]')?.click();});
+ $('dash-training').addEventListener('click',()=>{document.documentElement.classList.remove('dash-home');$('dashboard').hidden=true;$('choice-screen').hidden=false;document.querySelector('[data-game-type="bot"]')?.click();});
+ $('dash-kids').addEventListener('click',()=>{document.documentElement.classList.remove('dash-home');$('dashboard').hidden=true;$('choice-screen').hidden=false;$('open-kids')?.click();});
  $('return-dashboard').addEventListener('click',()=>{const game=$('game-screen');if(!game.hidden&&!confirm('Laufendes Match verlassen? Nicht gespeicherte Matchdaten gehen verloren.'))return;window.ArenaReturnDashboard?.();});
  $('dash-avatar-file').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file||!user||!selected)return;if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>2*1024*1024){note('Nur JPG, PNG oder WebP bis 2 MB.');return;}const path=user.id+'/'+selected+'.'+({ 'image/png':'png','image/jpeg':'jpg','image/webp':'webp'}[file.type]);const {error}=await client.storage.from('avatars').upload(path,file,{upsert:true,contentType:file.type});if(error){note('Bild nicht gespeichert: '+error.message+' (Storage-Bucket avatars prüfen)');return;}const {error:upErr}=await client.from('profiles').update({avatar_path:path}).eq('id',selected).eq('owner_id',user.id);if(upErr){note(upErr.message);return;}activeProfile().avatar_path=path;await updateDashboard();note('Profilbild gespeichert.');});
  async function updateDashboard(){const p=activeProfile();if(!p||!client)return;const avatar=$('dash-avatar');avatar.src='dart-lions-logo.png';if(p.avatar_path){const {data}=await client.storage.from('avatars').createSignedUrl(p.avatar_path,3600);if(data?.signedUrl)avatar.src=data.signedUrl;}['stat-average','stat-matches','stat-wins','stat-losses','stat-180'].forEach(id=>$(id).textContent='—');$('dash-status').textContent='Matchstatistiken werden angezeigt, sobald die Match-Erfassung mit der Cloud verbunden ist. Trainingsdaten sind bereits separat gespeichert.';}
