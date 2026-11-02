@@ -326,3 +326,6 @@ $('choice-screen').hidden=false;
 $('setup-screen').hidden=true;
 $('game-screen').hidden=true;
 $('kids-screen').hidden=true;
+
+// Return to the signed-in dashboard from every arena subpage.
+window.ArenaReturnDashboard=function(){stopBot();state=null;history=[];dartDraft=[];pendingVisit=null;const overlay=document.getElementById('result-overlay');if(overlay)overlay.hidden=true;const double=document.getElementById('double-overlay');if(double)double.hidden=true;document.body.classList.remove('dialog-open');for(const id of ['choice-screen','setup-screen','game-screen','kids-screen']){const section=document.getElementById(id);if(section)section.hidden=true;}document.documentElement.classList.add('dash-home');document.getElementById('dashboard').hidden=false;};
