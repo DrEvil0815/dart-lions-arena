@@ -173,3 +173,28 @@ html,body{min-height:100%;margin:0}body{overflow:hidden}.app{height:100dvh;min-h
 
 /* Cloud account – compact and responsive */
 .cloud-panel{max-width:1050px;width:calc(100% - 24px);margin:8px auto;padding:10px 14px;border:1px solid #9e7845;border-radius:12px;background:#181417;color:#f5d89b;box-sizing:border-box}.cloud-line{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px}.cloud-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:7px}.cloud-actions input,.cloud-actions select{min-width:120px;flex:1 1 130px;max-width:220px;padding:8px;color:#fff;background:#282128;border:1px solid #957044;border-radius:7px}.cloud-actions button{padding:8px 12px;background:#6b2029;color:#fff1c8;border:1px solid #bd8b4b;border-radius:7px;cursor:pointer}.cloud-panel #cloud-message{font-size:12px;margin-top:4px;min-height:14px}.cloud-panel [hidden]{display:none!important}
+
+/* Cloud player identity */
+.cloud-player-name:not(:empty){font-weight:800;color:#f3c46b;font-size:clamp(14px,1.7vw,19px);margin:8px 0;}
+.cloud-name-editor:not([hidden]){display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:8px 0;}
+.cloud-name-editor label{font-size:12px;font-weight:800;letter-spacing:.04em;color:#f3c46b;}
+.cloud-name-editor input{min-width:130px;max-width:240px;padding:9px 11px;border:1px solid #9c764d;border-radius:8px;background:#17171b;color:white;}
+.cloud-name-editor button{padding:9px 12px;border:1px solid #c8a15e;border-radius:8px;background:#452126;color:#ffe2a0;font-weight:700;cursor:pointer;}
+
+/* Login gate: selection and training are not visible before authentication. */
+html.auth-pending #choice-screen, html.auth-locked #choice-screen,
+html.auth-pending #setup-screen, html.auth-locked #setup-screen,
+html.auth-pending #kids-screen, html.auth-locked #kids-screen,
+html.auth-pending #game-screen, html.auth-locked #game-screen,
+html.auth-pending #result-overlay, html.auth-locked #result-overlay {display:none!important;}
+html.auth-pending #cloud-panel,html.auth-locked #cloud-panel{
+ width:min(94vw,470px);max-width:470px;margin:auto;align-self:center;
+ padding:clamp(20px,4vw,36px);border:1px solid #c29a58;border-radius:18px;
+ box-shadow:0 20px 75px #000a;background:linear-gradient(145deg,#2a1b22,#151216);
+}
+html.auth-pending #cloud-panel .cloud-line,html.auth-locked #cloud-panel .cloud-line{display:flex;flex-direction:column;text-align:center;align-items:center;font-size:16px;gap:10px;}
+html.auth-pending #cloud-panel .cloud-actions,html.auth-locked #cloud-panel .cloud-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px;}
+html.auth-pending #cloud-panel .cloud-actions input,html.auth-locked #cloud-panel .cloud-actions input{grid-column:1/-1;max-width:none;width:100%;box-sizing:border-box;min-height:45px;}
+html.auth-pending #cloud-panel .cloud-actions button,html.auth-locked #cloud-panel .cloud-actions button{min-height:45px;}
+html.auth-pending #cloud-panel #cloud-message,html.auth-locked #cloud-panel #cloud-message{text-align:center;margin-top:12px;}
+html.auth-pending #cloud-panel .cloud-actions{visibility:hidden;}

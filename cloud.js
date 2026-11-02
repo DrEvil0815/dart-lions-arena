@@ -6,6 +6,7 @@ window.ArenaCloud=(()=>{
  const $=id=>document.getElementById(id);
  const client=window.supabase?.createClient(url,key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
  let user=null, profiles=[],selected=null;
+ const gate=()=>{document.documentElement.classList.toggle('auth-locked',!user);document.documentElement.classList.remove('auth-pending');};
  const note=(s)=>{$('cloud-message').textContent=s;};
  const state=s=>{$('cloud-state').textContent=s;};
  async function refresh(){
@@ -19,11 +20,15 @@ window.ArenaCloud=(()=>{
    selected=profiles.some(p=>p.id===previous)?previous:(profiles[0]?.id||null);
    if(selected)sel.value=selected;
    sel.hidden=!profiles.length;
+   updateName();
    note(profiles.length?'Profil bereit. Neue Trainings werden in Supabase gespeichert.':'Kein Spielerprofil vorhanden. Bitte Profilanlage prüfen.');
  }
- async function setUser(next){user=next;$('cloud-email').hidden=!!user;$('cloud-password').hidden=!!user;$('cloud-login').hidden=!!user;$('cloud-signup').hidden=!!user;$('cloud-logout').hidden=!user;$('cloud-refresh').hidden=!user;
+ function activeProfile(){return profiles.find(p=>p.id===selected)||null;}
+ function updateName(){const p=activeProfile();const name=p?.display_name||'';const shown=$('cloud-player-name');if(shown)shown.textContent=name?('SPIELER: '+name):'';const input=$('cloud-display-name');if(input)input.value=name;const editor=$('cloud-name-editor');if(editor)editor.hidden=!user||!p;const kids=$('kids-name');if(kids&&name&&(!kids.value.trim()||kids.dataset.profileAutofill==='true')){kids.value=name;kids.dataset.profileAutofill='true';kids.dispatchEvent(new Event('change'));}window.dispatchEvent(new CustomEvent('arena-profile-changed',{detail:{name,profileId:selected}}));}
+ async function rename(){const p=activeProfile();if(!client||!user||!p)return;const input=$('cloud-display-name');const name=input.value.trim();if(name.length<2||name.length>32){note('Spielername: Bitte 2 bis 32 Zeichen eingeben.');return;}const {error}=await client.from('profiles').update({display_name:name}).eq('id',p.id).eq('owner_id',user.id);if(error){note('Name nicht gespeichert: '+error.message);return;}p.display_name=name;const opt=Array.from($('cloud-profile').options).find(o=>o.value===p.id);if(opt)opt.textContent=name+(p.is_child?' (Kids)':'');updateName();note('Spielername gespeichert.');}
+ async function setUser(next){user=next;gate();$('cloud-email').hidden=!!user;$('cloud-password').hidden=!!user;$('cloud-login').hidden=!!user;$('cloud-signup').hidden=!!user;$('cloud-logout').hidden=!user;$('cloud-refresh').hidden=!user;
    if(user){state('Angemeldet: '+(user.email||'Benutzer'));await refresh();}
-   else{state('Nicht angemeldet · Ergebnisse lokal');selected=null;profiles=[];$('cloud-profile').hidden=true;note('');}
+   else{state('Bitte anmelden oder registrieren');selected=null;profiles=[];$('cloud-profile').hidden=true;updateName();note('');}
  }
  async function authenticate(register){if(!client){note('Supabase-Bibliothek nicht geladen. Internetverbindung prüfen.');return;}
    const email=$('cloud-email').value.trim(),password=$('cloud-password').value;
@@ -36,10 +41,11 @@ window.ArenaCloud=(()=>{
  }
  $('cloud-login').addEventListener('click',()=>authenticate(false));$('cloud-signup').addEventListener('click',()=>authenticate(true));
  $('cloud-logout').addEventListener('click',async()=>{if(client){const {error}=await client.auth.signOut();if(error){note(error.message);return;}}await setUser(null);});
- $('cloud-profile').addEventListener('change',()=>{selected=$('cloud-profile').value;});
+ $('cloud-profile').addEventListener('change',()=>{selected=$('cloud-profile').value;updateName();});
+ $('cloud-save-name').addEventListener('click',rename);$('cloud-display-name').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();rename();}});
  $('cloud-refresh').addEventListener('click',async()=>{await refresh();window.dispatchEvent(new Event('arena-cloud-results-refresh'));});
- if(client){client.auth.getUser().then(({data,error})=>{if(!error)setUser(data.user||null);else note('Anmeldestatus nicht verfügbar.');});client.auth.onAuthStateChange((_event,session)=>{const id=session?.user?.id||null;if(id!==user?.id)setTimeout(()=>setUser(session?.user||null),0);});}
- else note('Cloud nicht erreichbar; lokale Trainings bleiben verfügbar.');
+ if(client){client.auth.getUser().then(({data,error})=>{if(!error)setUser(data.user||null);else {gate();note('Anmeldestatus nicht verfügbar. Bitte erneut anmelden.');}});client.auth.onAuthStateChange((_event,session)=>{const id=session?.user?.id||null;if(id!==user?.id)setTimeout(()=>setUser(session?.user||null),0);});}
+ else {gate();note('Anmeldung derzeit nicht verfügbar. Bitte Internetverbindung prüfen und Seite neu laden.');}
  async function saveTraining({name,board,game,points,darts,hits}){
    if(!client||!user||!selected)return {saved:false,reason:'Nicht angemeldet oder kein Profil ausgewählt'};
    const start=new Date().toISOString();
@@ -52,5 +58,5 @@ window.ArenaCloud=(()=>{
    return {saved:true};
  }
  async function getTrainings(){if(!client||!user||!selected)return {data:[],error:null};return client.from('training_sessions').select('id,game_mode,finished_at,result_data').eq('owner_id',user.id).eq('profile_id',selected).eq('status','completed').order('finished_at',{ascending:false}).limit(100);}
- return {saveTraining,getTrainings,isLoggedIn:()=>!!user,selectedProfile:()=>selected,note};
+ return {saveTraining,getTrainings,isLoggedIn:()=>!!user,selectedProfile:()=>selected,playerName:()=>activeProfile()?.display_name||'',note};
 })();
