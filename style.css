@@ -302,3 +302,53 @@ html.dash-home #dashboard:not([hidden]){display:block!important;}
   #dashboard .dash-actions {grid-template-columns:1fr}
   #dashboard .dash-actions button {min-height:135px}
 }
+
+
+/* V4.13 – viewport-adaptive Arena: compact desktop/laptop, accessible small screens. */
+@media (min-width: 851px) and (min-height: 650px) {
+  #dashboard.arena-dashboard:not([hidden]) {
+    height:calc(100dvh - 92px); min-height:0; overflow:hidden;
+    display:flex!important; flex-direction:column;
+    padding:clamp(8px,1.25vh,18px) clamp(14px,2vw,34px) 0;
+  }
+  #dashboard .dashboard-card {flex:1;min-height:0;display:flex;flex-direction:column;}
+  #dashboard .dash-profile {margin:clamp(5px,.8vh,13px) 0;padding-bottom:clamp(5px,.9vh,14px);gap:clamp(10px,1.5vw,20px)}
+  #dashboard .dash-profile img {width:clamp(54px,8vh,94px);height:clamp(54px,8vh,94px)}
+  #dashboard .dash-profile h1 {font-size:clamp(21px,3vh,34px);margin:2px 0}
+  #dashboard h2 {font-size:clamp(14px,2vh,19px);margin:clamp(5px,.9vh,13px) 0}
+  #dashboard .dash-stats {gap:clamp(6px,1vw,16px)}
+  #dashboard .dash-stats>div {padding:clamp(7px,1.3vh,18px) 5px}
+  #dashboard .dash-stats b {font-size:clamp(19px,3.1vh,32px)}
+  #dashboard .dash-hint {margin:clamp(3px,.5vh,8px) 0}
+  #dashboard .dash-actions {flex:1;min-height:0;margin-top:clamp(4px,.7vh,12px);gap:clamp(8px,1vw,18px)}
+  #dashboard .dash-actions button {min-height:0;padding:clamp(12px,2vh,25px);gap:clamp(3px,.8vh,9px)}
+  #dashboard .dash-actions button span {font-size:clamp(22px,3.4vh,32px)}
+  #dashboard .dash-actions button strong {font-size:clamp(15px,2.2vh,22px)}
+  #dashboard .dash-actions button small {font-size:clamp(11px,1.5vh,14px)}
+  #dashboard #dash-logout {margin-top:clamp(5px,.9vh,13px);padding:6px 12px;align-self:flex-start}
+  #dashboard .arena-bottom-nav {flex-shrink:0;margin-top:clamp(6px,1vh,12px)}
+  #dashboard .arena-bottom-nav button {min-height:clamp(48px,7vh,66px)}
+  #dashboard .arena-bottom-nav button span {font-size:clamp(19px,2.6vh,26px)}
+  #setup-screen.setup-screen {height:calc(100dvh - 90px);min-height:0;overflow:auto;align-items:center;padding:clamp(8px,1.5vh,20px) 20px}
+  #setup-screen .setup-card {width:min(100%,1050px)}
+  #setup-screen .setup-card h1 {font-size:clamp(26px,4vh,42px);margin:4px 0}
+  #setup-screen .setup-card>p {margin:3px 0 clamp(8px,1.5vh,18px)}
+  #setup-screen .back-choice {margin-bottom:clamp(5px,1vh,12px)}
+  #setup-screen .setup-form {gap:clamp(7px,1.1vh,15px) 20px}
+  #setup-screen .setup-form input,#setup-screen .setup-form select {min-height:clamp(40px,5.5vh,54px);padding:8px 12px;margin-top:4px;font-size:clamp(15px,1.8vh,18px)}
+  #setup-screen .start-match {min-height:clamp(45px,6vh,60px)}
+  #training-screen.training-screen:not([hidden]) {box-sizing:border-box;width:100%;max-width:none;height:calc(100dvh - 90px);overflow:auto;padding:clamp(10px,1.5vh,22px) clamp(15px,3vw,48px)}
+  #training-screen .training-panel {border:0;background:transparent;padding:0;box-shadow:none}
+  #training-screen .training-panel h1 {margin:clamp(4px,1vh,12px) 0;font-size:clamp(25px,4vh,38px)}
+  #training-screen .training-grid {margin:clamp(8px,1.5vh,20px) 0;gap:clamp(8px,1.5vh,14px)}
+  #training-screen .training-grid article,#training-screen .training-grid .training-kids {min-height:clamp(105px,19vh,165px);padding:clamp(10px,1.8vh,20px);gap:clamp(4px,.7vh,10px)}
+}
+/* Short screens: allow scrolling rather than clipping buttons or settings. */
+@media (max-height: 649px) {
+  #dashboard.arena-dashboard:not([hidden]),#setup-screen.setup-screen:not([hidden]),#training-screen.training-screen:not([hidden]) {height:auto;min-height:0;overflow:visible}
+  #dashboard .dash-actions button {min-height:105px}
+}
+@media (max-width:850px) {
+  #dashboard.arena-dashboard {overflow:visible}
+  #setup-screen.setup-screen {height:auto;min-height:0;overflow:visible}
+}
