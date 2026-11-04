@@ -1,0 +1,1 @@
+V4.8 Dashboard auf Basis der hochgeladenen V4.7. Neu: 4er-Navigation, neue Dashboard-Kacheln, Statistik-Hinweis. Scorer, Bot, Login, Supabase und Kids-Logik unverändert. Noch keine Browser- oder Live-Supabase-Tests. Vor Deployment GitHub-Backup erstellen.

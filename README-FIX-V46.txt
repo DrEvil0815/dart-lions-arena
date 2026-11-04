@@ -1,0 +1,1 @@
+Version 4.6: Korrektur Event-Handler in cloud.js. Bisheriger on()-Aufruf mit vier Argumenten fuehrte dazu, dass ein String statt einer Funktion als Listener registriert wurde. index.html und cloud.js ersetzen. Keine SQL-Aenderung.
