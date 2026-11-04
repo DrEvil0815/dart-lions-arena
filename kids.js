@@ -44,7 +44,7 @@ const originalProgress=progress;
 progress=function(b){const p=originalProgress(b);if(b.game==='high')p.points=calcHigh(b);return p;};
 function calcHigh(b){return b.hits.reduce((s,h)=>s+(h.startsWith('TOTAL:')?Number(h.slice(6)):score(h)),0);}
 el('open-kids').addEventListener('click',()=>{el('choice-screen').hidden=true;el('setup-screen').hidden=true;el('game-screen').hidden=true;el('kids-screen').hidden=false;show('board');});
-el('kids-back').addEventListener('click',()=>{el('kids-screen').hidden=true;el('choice-screen').hidden=false;});
+el('kids-back').addEventListener('click',()=>{el('kids-screen').hidden=true;el('choice-screen').hidden=true;if(typeof window.ArenaReturnDashboard==='function'){window.ArenaReturnDashboard();}else{const dashboard=el('dashboard');if(dashboard)dashboard.hidden=false;document.documentElement.classList.add('dash-home');}});
 document.querySelectorAll('[data-kids-tab]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.kidsTab)));
 el('kids-board-select').addEventListener('change',()=>openBoard(Number(el('kids-board-select').value)));
 el('kids-name').addEventListener('change',()=>{boards[current].name=el('kids-name').value;save();});
