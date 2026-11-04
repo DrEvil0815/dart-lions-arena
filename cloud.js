@@ -41,6 +41,7 @@ window.ArenaCloud=(()=>{
    await setUser(data.user||null);
  }
  function setRegisterUI(){const on=registerMode;$('registration-fields').hidden=!on;$('reg-repeat').hidden=!on;$('cloud-login').hidden=on;$('cloud-signup').hidden=on;$('cloud-register-submit').hidden=!on;$('cloud-register-back').hidden=!on;$('cloud-password').autocomplete=on?'new-password':'current-password';}
+ on('auth-reset','click','click',async()=>{const email=$('cloud-email').value.trim();if(!email){note('Bitte zuerst deine E-Mail-Adresse eingeben.');return;}if(!client){note('Anmeldung derzeit nicht verfügbar.');return;}note('Passwort-Link wird angefordert …');const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+window.location.pathname});note(error?'Passwort-Link konnte nicht versendet werden: '+error.message:'Falls ein Konto mit dieser E-Mail existiert, erhältst du einen Link zum Zurücksetzen.');});
  on('cloud-login','click','click',()=>authenticate(false));on('cloud-signup','click','click',()=>{registerMode=true;setRegisterUI();note('Bitte alle Felder ausfüllen.');});on('cloud-register-back','click','click',()=>{registerMode=false;setRegisterUI();note('');});on('cloud-register-submit','click','click',()=>authenticate(true));
  on('cloud-logout','click','click',async()=>{if(client){const {error}=await client.auth.signOut();if(error){note(error.message);return;}}await setUser(null);});
  on('cloud-profile','change','change',()=>{selected=$('cloud-profile').value;updateName();});

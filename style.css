@@ -352,3 +352,111 @@ html.dash-home #dashboard:not([hidden]){display:block!important;}
   #dashboard.arena-dashboard {overflow:visible}
   #setup-screen.setup-screen {height:auto;min-height:0;overflow:visible}
 }
+
+/* V4.14 – Scorer: Bildschirmfläche sinnvoll nutzen, ohne Spiel-Logik anzufassen. */
+#game-screen .arena-layout{width:100%;min-width:0;min-height:0;gap:clamp(4px,.8vh,10px)}
+#game-screen .player,#game-screen .match-score,#game-screen .entry{min-width:0}
+#game-screen .player{justify-content:space-around;gap:clamp(2px,.45vh,7px)}
+#game-screen .player .stats{gap:clamp(3px,.6vw,12px)}
+#game-screen .player .stats>div{min-width:0;padding:clamp(2px,.5vh,8px)}
+#game-screen .player .stats b{font-size:clamp(12px,2.2vh,23px)}
+#game-screen .player .stats small{font-size:clamp(8px,1.1vh,12px)}
+#game-screen .entry{display:flex;flex-direction:column;gap:clamp(2px,.4vh,5px)}
+#game-screen .entry form{width:100%;min-height:0;flex:1}
+#game-screen .entry .keypad{min-height:0!important;grid-template-rows:repeat(4,minmax(0,1fr))!important}
+#game-screen .entry .keypad button{min-height:0!important;font-size:clamp(16px,2.7vh,27px)!important;touch-action:manipulation}
+#game-screen .entry .submit{touch-action:manipulation}
+#game-screen .history-rows{overscroll-behavior:contain}
+@media (min-width:701px){
+  #game-screen .arena-layout{grid-template-rows:minmax(0,1fr) minmax(245px,48%)!important}
+  #game-screen .entry{max-width:100%}
+  #game-screen .entry .keypad{min-height:0!important}
+  #game-screen .entry .keypad button{min-height:0!important}
+}
+@media (max-width:700px){
+  #game-screen .arena-layout{grid-template-rows:minmax(0,1fr) minmax(265px,52%)!important}
+  #game-screen .player{padding:clamp(3px,.6vh,8px)}
+  #game-screen .player h2{font-size:clamp(13px,2.4vh,22px)}
+  #game-screen .player.active h2{font-size:clamp(15px,2.7vh,25px)}
+  #game-screen .player .remaining{font-size:clamp(28px,6vh,65px)}
+  #game-screen .player.active .remaining{font-size:clamp(33px,7vh,75px)}
+  #game-screen .entry .keypad button{font-size:clamp(16px,2.6vh,23px)!important}
+}
+/* Bei sehr niedriger Displayhöhe nicht versuchen, alles in unbedienbar kleine Tasten zu pressen. */
+@media (max-height:620px){
+  #game-screen .arena-layout{grid-template-rows:minmax(0,1fr) minmax(210px,55%)!important}
+  #game-screen .entry-title .eyebrow{display:none}
+  #game-screen .entry-mode button{padding:3px}
+  #game-screen .player .remaining{font-size:clamp(25px,5.5vh,50px)}
+  #game-screen .player.active .remaining{font-size:clamp(30px,6.3vh,60px)}
+}
+
+
+/* V4.15 — Counter: zwei Spieler oben, Eingabe mittig, Touch-Tastatur optional */
+#game-screen:not([hidden]){height:100%;min-height:0}
+#game-screen .arena-layout{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:minmax(130px,40%) minmax(0,1fr)!important;gap:clamp(5px,1vw,12px)!important;min-height:0!important;height:auto!important;flex:1!important}
+#game-screen .side-hits{display:none!important}
+#game-screen #a{grid-column:1!important;grid-row:1!important}
+#game-screen #b{grid-column:2!important;grid-row:1!important}
+#game-screen .center{display:contents!important}
+#game-screen .match-score{display:none!important}
+#game-screen .entry{grid-column:1/-1!important;grid-row:2!important;width:min(100%,860px);justify-self:center;display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:clamp(4px,.8vh,10px)!important;background:transparent!important;border:0!important;box-shadow:none!important;padding:clamp(4px,1vw,12px)!important;overflow:hidden!important}
+#game-screen .player{border-radius:clamp(8px,1.5vw,18px)!important;padding:clamp(8px,1.5vw,20px)!important;display:flex;flex-direction:column;justify-content:space-around}
+#game-screen .player.active{background:linear-gradient(135deg,#952832,#551a25)!important}
+#game-screen .player .remaining{font-size:clamp(38px,10vh,130px)!important;line-height:1!important}
+#game-screen .player h2{font-size:clamp(13px,2.2vw,25px)!important}
+#game-screen .entry-title{display:flex;justify-content:space-between;align-items:center;gap:10px}
+#game-screen .entry-title h2{font-size:clamp(12px,1.8vw,19px)!important}
+#game-screen .entry form{width:100%;flex:1;min-height:0;display:flex!important;flex-direction:column!important;gap:clamp(5px,1vh,12px)!important}
+#game-screen #points{width:100%;max-width:450px;align-self:center;height:clamp(55px,12vh,105px)!important;font-size:clamp(38px,8vh,75px)!important;text-align:center;background:transparent!important;border:0!important;box-shadow:none!important;flex:none!important}
+#game-screen .keypad{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(4,minmax(0,1fr))!important;gap:clamp(4px,.8vh,10px)!important;min-height:0!important;flex:1!important}
+#game-screen .keypad button{min-height:0!important;font-size:clamp(18px,3vh,30px)!important;border-radius:12px!important;background:#a72c36!important}
+#game-screen .submit{min-height:clamp(38px,6vh,60px)!important;flex:none!important}
+#game-screen .undo{min-height:30px}
+#game-screen .counter-keyboard-toggle{flex:none;background:#292027;color:#f5c46d;border:1px solid #8b6339;border-radius:9px;padding:9px 12px;font-weight:800;cursor:pointer}
+#game-screen.counter-keyboard-hidden .keypad{display:none!important}
+#game-screen.counter-keyboard-hidden .entry form{justify-content:center!important;flex:0 1 auto!important}
+#game-screen.counter-keyboard-hidden #points{height:clamp(85px,17vh,170px)!important;font-size:clamp(56px,12vh,125px)!important}
+#game-screen.counter-keyboard-hidden .entry{justify-content:center!important}
+#game-screen .counter-keyboard-toggle:focus-visible{outline:3px solid #f5c46d;outline-offset:2px}
+@media(max-width:650px){#game-screen .arena-layout{grid-template-rows:minmax(125px,34%) minmax(0,1fr)!important}#game-screen .player{padding:7px!important}#game-screen .player .remaining{font-size:clamp(34px,8vh,75px)!important}#game-screen .entry{padding:3px!important}#game-screen .entry-mode{margin:0!important}#game-screen .entry-title .eyebrow{display:none}#game-screen .entry .keypad button{font-size:clamp(17px,3vh,26px)!important}}
+@media(max-height:620px){#game-screen .arena-layout{grid-template-rows:minmax(105px,35%) minmax(0,1fr)!important}#game-screen .player .stats{font-size:10px}#game-screen .entry-title{min-height:25px}#game-screen #points{height:clamp(36px,9vh,70px)!important}#game-screen .submit{min-height:30px!important}}
+
+/* V4.16 — eigenständige Login-Oberfläche; bestehende Cloud-IDs und Auth-Logik bleiben erhalten */
+.auth-layout{display:contents}
+.auth-hero,.auth-intro,.auth-field-label,.auth-reset{display:none!important}
+html:is(.auth-locked,.auth-pending) body{background:#080a0f;}
+html:is(.auth-locked,.auth-pending) .auth-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);width:min(1280px,calc(100% - 48px));height:min(810px,calc(100dvh - 130px));min-height:510px;margin:auto;overflow:hidden;border-radius:20px;box-shadow:0 30px 90px #000b;isolation:isolate}
+html:is(.auth-locked,.auth-pending) #cloud-panel{width:100%;max-width:none;height:100%;min-height:0;margin:0;padding:clamp(22px,4vw,64px);border:0;border-radius:0;background:#171719;box-shadow:none;display:flex;flex-direction:column;justify-content:center;overflow-y:auto;color:#f9f8f7}
+html:is(.auth-locked,.auth-pending) #cloud-panel .auth-intro{display:block!important;max-width:480px;margin:0 auto 25px;width:100%}
+html:is(.auth-locked,.auth-pending) .auth-eyebrow{font-size:11px;letter-spacing:.2em;color:#e3b96b;font-weight:800}
+html:is(.auth-locked,.auth-pending) .auth-intro h1{font-size:clamp(29px,3.5vw,49px);margin:16px 0 12px;letter-spacing:.025em;color:white}
+html:is(.auth-locked,.auth-pending) .auth-intro p{color:#c6c2c5;font-size:clamp(14px,1.4vw,18px);line-height:1.5;margin:0}
+html:is(.auth-locked,.auth-pending) #cloud-panel .cloud-line{display:none}
+html:is(.auth-locked,.auth-pending) #cloud-panel .cloud-actions{display:flex;flex-direction:column;gap:10px;margin:0 auto;width:100%;max-width:480px;visibility:visible}
+html:is(.auth-locked,.auth-pending) #cloud-panel .auth-field-label{display:block!important;color:#f0e5da;font-size:14px;font-weight:700;margin-top:8px}
+html:is(.auth-locked,.auth-pending) #cloud-panel .cloud-actions input{width:100%;max-width:none;flex:0 0 auto;min-height:53px;background:#f7f7f9;color:#17171a;border:1px solid #dedee2;border-radius:12px;font-size:16px;padding:12px 17px}
+html:is(.auth-locked,.auth-pending) #cloud-panel .cloud-actions input::placeholder{color:#8c8d96}
+html:is(.auth-locked,.auth-pending) #cloud-login,html:is(.auth-locked,.auth-pending) #cloud-register-submit{background:#ae303b;color:white;border:0;border-radius:11px;min-height:54px;font-weight:800;margin-top:14px}
+html:is(.auth-locked,.auth-pending) #cloud-signup{background:transparent;color:#f0c478;border:1px solid #765331;border-radius:11px;min-height:47px}
+html:is(.auth-locked,.auth-pending) #cloud-panel .auth-reset{display:block!important;background:transparent;border:0;color:#e9e3e3;font-weight:650;min-height:40px;order:3}
+html:is(.auth-locked,.auth-pending) #cloud-panel .auth-reset[hidden]{display:none!important}
+html:is(.auth-locked,.auth-pending) #cloud-panel #cloud-message{max-width:480px;width:100%;margin:12px auto 0;text-align:center;color:#f3c77e;line-height:1.4}
+html:is(.auth-locked,.auth-pending) #cloud-panel #registration-fields{max-width:480px;width:100%;margin:0 auto 12px}
+html:is(.auth-locked,.auth-pending) #cloud-panel #registration-fields input{min-height:46px;border-radius:10px;background:#f7f7f9;color:#17171a;border:1px solid #ddd;padding:10px 15px}
+html:is(.auth-locked,.auth-pending) #cloud-panel:has(#registration-fields:not([hidden])) .auth-intro h1{font-size:0}
+html:is(.auth-locked,.auth-pending) #cloud-panel:has(#registration-fields:not([hidden])) .auth-intro h1:after{content:'REGISTRIEREN';font-size:clamp(29px,3vw,43px)}
+html:is(.auth-locked,.auth-pending) #cloud-panel:has(#registration-fields:not([hidden])) .auth-intro{margin-bottom:14px}
+html:is(.auth-locked,.auth-pending) .auth-hero{display:flex!important;flex-direction:column;justify-content:space-between;position:relative;min-width:0;background:linear-gradient(180deg,#08090d22,#06060acc),url('arena-login-board.jpg') center/cover no-repeat,#220b12;padding:clamp(20px,3vw,45px);overflow:hidden}
+html:is(.auth-locked,.auth-pending) .auth-hero:after{content:'';position:absolute;inset:0;box-shadow:inset 0 0 90px #0007;pointer-events:none}
+.auth-hero-top,.auth-hero-bottom{position:relative;z-index:1;display:flex;align-items:center;gap:17px;text-shadow:0 2px 12px #000}
+.auth-hero-top img{width:clamp(60px,6vw,95px);height:clamp(60px,6vw,95px);object-fit:contain;filter:drop-shadow(0 4px 10px #0009)}
+.auth-hero-top strong{font-size:clamp(23px,3vw,43px);letter-spacing:.09em;color:#f5c778;display:block}
+.auth-hero-top span{font-size:clamp(10px,1.2vw,16px);letter-spacing:.24em;color:#fff}
+.auth-hero-bottom{flex-direction:column;align-items:flex-start;gap:7px;color:#fff}
+.auth-hero-bottom strong{font-size:clamp(17px,2.2vw,30px)}
+.auth-hero-bottom span{color:#f5c778;letter-spacing:.3em;font-weight:900}
+@media(max-width:760px){html:is(.auth-locked,.auth-pending) .auth-layout{width:100%;height:calc(100dvh - 75px);min-height:0;border-radius:0;grid-template-columns:1fr}html:is(.auth-locked,.auth-pending) .auth-hero{display:none!important}html:is(.auth-locked,.auth-pending) #cloud-panel{padding:20px clamp(18px,5vw,40px)}html:is(.auth-locked,.auth-pending) .auth-intro h1{margin:10px 0}}
+@media(max-height:680px) and (min-width:761px){html:is(.auth-locked,.auth-pending) .auth-layout{height:calc(100dvh - 75px);min-height:0}html:is(.auth-locked,.auth-pending) #cloud-panel{padding:16px 36px}html:is(.auth-locked,.auth-pending) .auth-intro{margin-bottom:12px!important}html:is(.auth-locked,.auth-pending) .auth-intro h1{margin:6px 0}html:is(.auth-locked,.auth-pending) #cloud-panel .cloud-actions{gap:5px}html:is(.auth-locked,.auth-pending) #cloud-panel .cloud-actions input{min-height:43px}}
+
+html:is(.auth-locked,.auth-pending) #cloud-panel:has(#registration-fields:not([hidden])) .auth-reset{display:none!important}
