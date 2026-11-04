@@ -52,7 +52,27 @@ window.ArenaCloud=(()=>{
  on('dash-kids','click','click',()=>{document.documentElement.classList.remove('dash-home');$('dashboard').hidden=true;$('choice-screen').hidden=true;$('open-kids')?.click();});
  on('return-dashboard','click','click',()=>{const game=$('game-screen');if(!game.hidden&&!confirm('Laufendes Match verlassen? Nicht gespeicherte Matchdaten gehen verloren.'))return;window.ArenaReturnDashboard?.();});
  on('dash-avatar-file','change','change',async e=>{const file=e.target.files?.[0];if(!file||!user||!selected)return;if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>2*1024*1024){note('Nur JPG, PNG oder WebP bis 2 MB.');return;}const path=user.id+'/'+selected+'.'+({ 'image/png':'png','image/jpeg':'jpg','image/webp':'webp'}[file.type]);const {error}=await client.storage.from('avatars').upload(path,file,{upsert:true,contentType:file.type});if(error){note('Bild nicht gespeichert: '+error.message+' (Storage-Bucket avatars prüfen)');return;}const {error:upErr}=await client.from('profiles').update({avatar_path:path}).eq('id',selected).eq('owner_id',user.id);if(upErr){note(upErr.message);return;}activeProfile().avatar_path=path;await updateDashboard();note('Profilbild gespeichert.');});
- async function updateDashboard(){const p=activeProfile();if(!p||!client)return;const avatar=$('dash-avatar');avatar.src='dart-lions-logo.png';if(p.avatar_path){const {data}=await client.storage.from('avatars').createSignedUrl(p.avatar_path,3600);if(data?.signedUrl)avatar.src=data.signedUrl;}['stat-average','stat-matches','stat-wins','stat-losses','stat-180'].forEach(id=>$(id).textContent='—');$('dash-status').textContent='Matchstatistiken werden angezeigt, sobald die Match-Erfassung mit der Cloud verbunden ist. Trainingsdaten sind bereits separat gespeichert.';}
+ async function updateDashboard(){
+   const p=activeProfile();if(!p||!client)return;
+   const avatar=$('dash-avatar');avatar.src='dart-lions-logo.png';
+   if(p.avatar_path){const {data}=await client.storage.from('avatars').createSignedUrl(p.avatar_path,3600);if(data?.signedUrl)avatar.src=data.signedUrl;}
+   const ids=['stat-average','stat-matches','stat-wins','stat-losses','stat-180'];ids.forEach(id=>$(id).textContent='—');
+   const {data,error}=await client.from('arena_matches').select('won,scored_points,darts_thrown,count_180,high_finish,shortest_leg,double_attempts,double_hits,double_complete').eq('profile_id',p.id).eq('owner_id',user.id);
+   if(error){$('dash-status').textContent='Matchstatistik nicht verfügbar. Bitte SETUP-V418.sql in Supabase ausführen: '+error.message;return;}
+   const rows=data||[],sum=k=>rows.reduce((n,r)=>n+(Number(r[k])||0),0);
+   const wins=rows.filter(r=>r.won).length,darts=sum('darts_thrown');
+   $('stat-average').textContent=darts?(sum('scored_points')*3/darts).toFixed(2):'—';
+   $('stat-matches').textContent=String(rows.length);$('stat-wins').textContent=String(wins);
+   $('stat-losses').textContent=String(rows.length-wins);$('stat-180').textContent=String(sum('count_180'));
+   $('dash-status').textContent=rows.length?'Gesamtstatistik aus allen gespeicherten Matches (ohne Zeitraumfilter).':'Noch keine abgeschlossenen Matches gespeichert.';
+ }
+ async function saveMatch(result){
+   if(!client||!user||!selected)return {saved:false,reason:'Kein angemeldetes Spielerprofil'};
+   const row={owner_id:user.id,profile_id:selected,...result};
+   const {error}=await client.from('arena_matches').insert(row);
+   if(error)return {saved:false,reason:error.message};
+   await updateDashboard();return {saved:true};
+ }
  on('cloud-refresh','click','click',async()=>{await refresh();window.dispatchEvent(new Event('arena-cloud-results-refresh'));});
  if(client){client.auth.getUser().then(({data,error})=>{if(!error)setUser(data.user||null);else {gate();note('Anmeldestatus nicht verfügbar. Bitte erneut anmelden.');}});client.auth.onAuthStateChange((_event,session)=>{const id=session?.user?.id||null;if(id!==user?.id)setTimeout(()=>setUser(session?.user||null),0);});}
  else {gate();note('Anmeldung derzeit nicht verfügbar. Bitte Internetverbindung prüfen und Seite neu laden.');}
@@ -81,5 +101,5 @@ window.ArenaCloud=(()=>{
      return {ok:true,id:rows[0].id,name:rows[0].display_name};
    }finally{await secondary.auth.signOut({scope:'local'}).catch(()=>{});}
  }
- return {saveTraining,getTrainings,verifyOpponent,isLoggedIn:()=>!!user,selectedProfile:()=>selected,playerName:()=>activeProfile()?.display_name||'',note};
+ return {saveTraining,saveMatch,getTrainings,verifyOpponent,isLoggedIn:()=>!!user,selectedProfile:()=>selected,playerName:()=>activeProfile()?.display_name||'',note};
 })();

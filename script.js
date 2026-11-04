@@ -79,6 +79,15 @@ function startMatch(e) {
   scheduleBot();
 }
 
+async function persistCompletedMatch(winnerIndex){
+ const snapshot=clone(state);
+ const i=0;
+ const result={match_key:crypto.randomUUID(),opponent_type:snapshot.opponentType,opponent_name:snapshot.names[1],opponent_profile_id:snapshot.opponentProfileId||null,start_score:snapshot.start,best_of:snapshot.bestOf,legs_won:snapshot.legs[i],legs_lost:snapshot.legs[1],won:winnerIndex===i,scored_points:snapshot.scored[i],darts_thrown:snapshot.throws[i],count_180:snapshot.max180[i],high_finish:Math.max(0,...snapshot.highFinishes[i])||null,shortest_leg:Math.min(Infinity,...snapshot.shortLegs[i])===Infinity?null:Math.min(...snapshot.shortLegs[i]),double_attempts:snapshot.doubles[i],double_hits:snapshot.doubleHits[i],double_complete:snapshot.trackDoubles&&snapshot.doubleComplete[i]};
+ try{
+   const saved=await window.ArenaCloud?.saveMatch?.(result);
+   if(!saved?.saved){console.error('Match nicht gespeichert:',saved?.reason);alert('Match beendet, aber nicht in Supabase gespeichert: '+(saved?.reason||'Cloud nicht erreichbar')+'\nBitte vor dem Schließen prüfen.');}
+ }catch(error){console.error(error);alert('Match konnte nicht gespeichert werden: '+error.message);}
+}
 function outName(out){return out==='single'?'Single Out':out==='master'?'Master Out':'Double Out';}
 function handicapConfig(){
  const mode=$('opponent-type').value==='bot'?'off':$('handicap-mode').value,base=Number($('start').value);
@@ -248,7 +257,7 @@ function recordVisit(value,darts,finishingDouble=false,finishingTriple=false,dou
       if(state.legDarts[i]<=18)state.shortLegs[i].push(state.legDarts[i]);
       state.legs[i]++;
       if(state.legs[i]>=Math.ceil(state.bestOf/2)){
-        state.finished=true;$('message').textContent='GAME SHOT AND THE MATCH! '+state.names[i]+' gewinnt '+state.legs[0]+':'+state.legs[1]+'.';$('message').classList.add('match-finished');
+        state.finished=true;persistCompletedMatch(i);$('message').textContent='GAME SHOT AND THE MATCH! '+state.names[i]+' gewinnt '+state.legs[0]+':'+state.legs[1]+'.';$('message').classList.add('match-finished');
         setTimeout(()=>{if(!state?.finished)return;const winner=state.names[i];window.ArenaResults.open({title:'MATCH BEENDET',subtitle:winner+' gewinnt '+state.legs[0]+':'+state.legs[1],stats:[['SIEGER',winner],['ERGEBNIS',state.legs[0]+':'+state.legs[1]],['3-DART AVG',state.throws[i]?(state.scored[i]/state.throws[i]*3).toFixed(2):'0.00'],['180ER',String(state.max180[i])]],onExit:()=>showSetup(),onRestart:()=>startMatch()});},80);
       }else{
         $('message').textContent='Game shot! '+state.names[i]+' gewinnt das Leg.';
