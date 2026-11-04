@@ -221,3 +221,52 @@ html.dash-home #dashboard:not([hidden]){display:block!important;}
 
 /* V4.8 dashboard only */
 .arena-dashboard{width:min(1060px,96%);padding-bottom:0}.arena-dashboard .dashboard-card{background:linear-gradient(145deg,#271b1d,#111115 70%);border-color:#856237;border-radius:20px}.dash-topline{display:flex;align-items:center;justify-content:space-between}.dash-ready{color:#c4d6a1;font-size:11px;font-weight:800}.arena-dashboard .dash-profile{border-bottom:1px solid #584039;padding-bottom:20px}.arena-dashboard .dash-profile img{border:3px solid #d4a652}.arena-dashboard h2{font-size:19px;color:#f1c66d;margin:20px 0 12px}.arena-dashboard .dash-stats>div{background:#252126;border:1px solid #654a38}.arena-dashboard .dash-actions{grid-template-columns:repeat(2,minmax(0,1fr))}.arena-dashboard .dash-actions button{display:flex;flex-direction:column;align-items:flex-start;gap:9px;text-align:left;border-radius:16px;min-height:155px;padding:22px;background:linear-gradient(135deg,#a12c37,#551923)}.arena-dashboard .dash-actions button:nth-child(2){background:linear-gradient(135deg,#76521f,#332315)}.arena-dashboard .dash-actions button span{font-size:30px}.arena-dashboard .dash-actions button strong{font-size:21px}.arena-dashboard .dash-actions button small{font-size:13px;color:#f2e2d3}.arena-bottom-nav{position:sticky;bottom:0;z-index:10;display:grid;grid-template-columns:repeat(4,1fr);background:#171419;border:1px solid #6b4c35;border-radius:14px 14px 0 0;margin-top:12px}.arena-bottom-nav button{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;background:transparent;border:0;border-bottom:3px solid transparent;color:#bbb0ac;min-height:66px;cursor:pointer}.arena-bottom-nav button.active{color:#f2c86f;border-bottom-color:#f2c86f}.arena-bottom-nav button span{font-size:26px}.arena-bottom-nav button small{font-size:12px}.arena-dashboard .dash-info-panel{border:1px solid #8a6238;background:#252126;padding:20px;border-radius:12px}.arena-dashboard .dash-info-panel button{background:#862b34;color:white;border:1px solid #b78c53;border-radius:8px;padding:12px;cursor:pointer}.arena-dashboard .dash-hide-stats{display:none!important}@media(max-width:650px){.arena-dashboard .dash-actions{grid-template-columns:1fr}.arena-dashboard .dash-actions button{min-height:120px}.arena-dashboard .dash-stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+/* Spielerbild direkt anklickbar; bestehender Upload-Handler bleibt erhalten. */
+.dash-avatar-click{position:relative;display:inline-flex;flex:0 0 auto;cursor:pointer;border-radius:50%;outline-offset:5px}
+.dash-avatar-click:hover img{filter:brightness(.85)}
+.dash-avatar-click .dash-avatar-edit{position:absolute;right:0;bottom:0;background:#b78b3f;color:#171015;border:2px solid #181318;border-radius:50%;width:29px;height:29px;display:grid;place-items:center;font-size:18px;font-weight:bold;pointer-events:none}
+
+/* V4.9 – Trainingsbereich */
+#dashboard .dash-actions{grid-template-columns:repeat(3,minmax(0,1fr))}#dashboard .dash-actions button{min-width:0}#dash-training{background:linear-gradient(135deg,#795321,#392613);border:1px solid #d6a957}.training-screen{width:min(1050px,96%);margin:auto;padding:18px 0 40px}.training-panel{background:linear-gradient(145deg,#24191d,#101014);border:1px solid #90653d;border-radius:20px;padding:clamp(18px,3vw,32px)}.training-panel h1{color:#efc36c;font-size:clamp(27px,4vw,40px)}.training-panel>p{color:#c8b8ae}.training-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:24px 0}.training-grid article,.training-grid .training-kids{background:#282127;border:1px solid #75553c;border-radius:14px;padding:20px;min-height:165px;text-align:left;display:flex;flex-direction:column;gap:10px;box-sizing:border-box}.training-grid article>span,.training-grid .training-kids>span{color:#f3c66b;font-size:27px;font-weight:800}.training-grid h2,.training-grid strong{font-size:18px;color:#f1c56f;margin:0}.training-grid p{font-size:13px;color:#e0cec1;margin:0}.training-grid small{margin-top:auto;color:#bba98f;font-size:11px;letter-spacing:1px}.training-grid .training-kids{background:linear-gradient(135deg,#77313b,#392027);cursor:pointer;color:#fff}.training-grid .training-kids small{color:#f3c66b}#training-back{background:#38272b;border:1px solid #a57c4c;border-radius:9px;padding:12px 18px;color:#f5d392;cursor:pointer}@media(max-width:750px){#dashboard .dash-actions,.training-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:480px){#dashboard .dash-actions,.training-grid{grid-template-columns:1fr}.training-grid article,.training-grid .training-kids{min-height:120px}}
+
+/* V4.11 – zentrierte, rahmenlose Match-Vorbereitung. Nur Setup betroffen. */
+#setup-screen.setup-screen {
+  width:100%; max-width:none; box-sizing:border-box;
+  display:flex; justify-content:center; align-items:flex-start;
+  min-height:calc(100dvh - 125px);
+  padding:clamp(18px,3vh,38px) 20px 36px;
+}
+#setup-screen[hidden] {display:none!important}
+#setup-screen .setup-card {
+  box-sizing:border-box; width:min(100%,960px); max-width:960px;
+  background:transparent; border:0; border-radius:0;
+  box-shadow:none; padding:0;
+}
+#setup-screen .setup-card > .eyebrow {font-size:13px;letter-spacing:2px}
+#setup-screen .setup-card h1 {font-size:clamp(34px,4vw,48px);margin:9px 0}
+#setup-screen .setup-card > p {font-size:clamp(14px,1.5vw,17px);margin:7px 0 26px}
+#setup-screen .setup-form {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:19px 24px}
+#setup-screen .setup-form label {font-size:clamp(12px,1.1vw,14px);letter-spacing:1.1px;min-width:0}
+#setup-screen .setup-form input,
+#setup-screen .setup-form select {
+  box-sizing:border-box; width:100%; min-height:56px;
+  padding:14px 16px; margin-top:8px;
+  font-size:clamp(16px,1.5vw,19px);font-weight:650;
+  border-radius:11px; border:1px solid #75585a;
+  background:#211d22; color:#fff;
+}
+#setup-screen .setup-form input:focus-visible,
+#setup-screen .setup-form select:focus-visible {outline:2px solid #f0bd62;outline-offset:2px}
+#setup-screen .setup-form .wide,
+#setup-screen .setup-form .start-match {grid-column:1/-1}
+#setup-screen .start-match {min-height:62px;font-size:clamp(18px,2vw,23px);border-radius:11px}
+#setup-screen .back-choice {margin-bottom:18px;font-size:14px}
+@media(max-width:650px) {
+  #setup-screen.setup-screen {padding:18px 14px 28px}
+  #setup-screen .setup-form {grid-template-columns:1fr;gap:15px}
+  #setup-screen .setup-form label {grid-column:1/-1}
+  #setup-screen .setup-form input,
+  #setup-screen .setup-form select {min-height:54px;font-size:16px}
+  #setup-screen .setup-card > p {margin-bottom:18px}
+}
