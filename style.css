@@ -477,3 +477,9 @@ html:is(.auth-locked,.auth-pending) #cloud-panel:has(#registration-fields:not([h
 @media(max-width:800px){#dashboard .dl-dashboard-grid{grid-template-columns:1fr}#dashboard .dl-friends-panel{min-height:260px}#dashboard .dl-navlinks{gap:12px}#dashboard .dl-navright{display:none}#dashboard .dl-profile-strip{gap:14px}}
 @media(max-width:600px){#dashboard .dl-navbrand{min-width:0}#dashboard .dl-navbrand span{font-size:13px}#dashboard .dl-navlinks{display:none}#dashboard .arena-bottom-nav{display:grid!important;position:sticky;bottom:0}#dashboard .dl-dashboard-grid{padding:12px}#dashboard .dl-profile-strip{display:grid;grid-template-columns:60px 1fr 1fr;gap:12px}#dashboard .dl-profile-identity{grid-column:span 2}#dashboard .dl-stat{min-width:0}#dashboard .dl-hero-actions,#dashboard .dl-secondary-actions{grid-template-columns:1fr}#dashboard .dl-hero-actions button{min-height:140px}#dashboard .dl-secondary-actions>*{min-height:100px}}
 @media(min-width:801px) and (max-height:800px){#dashboard .dl-dashboard-grid{padding:12px 20px;gap:12px}#dashboard .dl-dashboard-main{gap:8px}#dashboard .dl-profile-strip{padding:10px}#dashboard .dl-hero-actions button{min-height:145px}#dashboard .dl-secondary-actions>*{min-height:110px}#dashboard .dl-friends-panel{min-height:390px}}
+
+/* V4.19: nur eine Kopfzeile im Dashboard; sonstige Ansichten behalten ihre Steuerung */
+html.dash-home .app>header{display:none!important}
+#dashboard .dl-navright .fullscreen-toggle{font-size:11px;padding:7px 10px}
+@media(max-width:800px){#dashboard .dl-navright{display:flex;align-items:center;gap:6px}#dashboard .dl-navright .dl-future{display:none}}
+@media(max-width:600px){#dashboard .dl-navright .fullscreen-toggle{font-size:10px;padding:6px 8px}}
