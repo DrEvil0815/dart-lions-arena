@@ -483,3 +483,7 @@ html.dash-home .app>header{display:none!important}
 #dashboard .dl-navright .fullscreen-toggle{font-size:11px;padding:7px 10px}
 @media(max-width:800px){#dashboard .dl-navright{display:flex;align-items:center;gap:6px}#dashboard .dl-navright .dl-future{display:none}}
 @media(max-width:600px){#dashboard .dl-navright .fullscreen-toggle{font-size:10px;padding:6px 8px}}
+/* V4.21 – Admin-Berechtigungstest (temporär) */
+.kids-admin-check{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:18px 0;color:#e5bf75;font-size:13px}
+.kids-admin-check button{background:#241b1c;color:#e5bf75;border:1px solid #ad8550;border-radius:8px;padding:12px 15px;cursor:pointer;font-weight:700}
+.kids-admin-check button:disabled{opacity:.5;cursor:wait}
