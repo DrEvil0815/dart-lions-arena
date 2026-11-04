@@ -35,7 +35,7 @@ function selectGameType(){
 document.querySelectorAll('[data-game-type]').forEach(button=>button.addEventListener('click',()=>selectGameType()));
 $('back-to-choice').addEventListener('click',()=>{window.ArenaReturnDashboard?.();});
 for(let n=15;n<=110;n+=5){const o=document.createElement('option');o.value=n;o.textContent=n;$('bot-average').append(o);} $('bot-average').value='45';
-$('opponent-type').addEventListener('change',()=>{registeredOpponent=null;$('opponent-status').textContent='';opponentChanged();});
+$('opponent-type').addEventListener('change',()=>{window.ArenaCloud?.clearOpponent?.();registeredOpponent=null;$('opponent-status').textContent='';opponentChanged();});
 $('opponent-verify').addEventListener('click',async()=>{
  const email=$('opponent-email').value.trim(),password=$('opponent-password').value;
  const status=$('opponent-status');
@@ -45,7 +45,7 @@ $('opponent-verify').addEventListener('click',async()=>{
  $('opponent-password').value='';
  if(!result?.ok){registeredOpponent=null;status.textContent=result?.error||'Anmeldung fehlgeschlagen.';return;}
  registeredOpponent={id:result.id,name:result.name};$('p2').value=result.name;
- status.textContent='Angemeldet: '+result.name+' · Hinweis: Matchstatistiken für Spieler 2 werden noch nicht synchronisiert.';
+ status.textContent='Bestätigt: '+result.name+' · Matchstatistiken werden für beide Konten gespeichert.';
 });
 opponentChanged();
 function clone(value) { return JSON.parse(JSON.stringify(value)); }
@@ -82,9 +82,15 @@ function startMatch(e) {
 async function persistCompletedMatch(winnerIndex){
  const snapshot=clone(state);
  const i=0;
- const result={match_key:crypto.randomUUID(),opponent_type:snapshot.opponentType,opponent_name:snapshot.names[1],opponent_profile_id:snapshot.opponentProfileId||null,start_score:snapshot.start,best_of:snapshot.bestOf,legs_won:snapshot.legs[i],legs_lost:snapshot.legs[1],won:winnerIndex===i,scored_points:snapshot.scored[i],darts_thrown:snapshot.throws[i],count_180:snapshot.max180[i],high_finish:Math.max(0,...snapshot.highFinishes[i])||null,shortest_leg:Math.min(Infinity,...snapshot.shortLegs[i])===Infinity?null:Math.min(...snapshot.shortLegs[i]),double_attempts:snapshot.doubles[i],double_hits:snapshot.doubleHits[i],double_complete:snapshot.trackDoubles&&snapshot.doubleComplete[i]};
+ const matchKey=crypto.randomUUID();
+ const result={match_key:matchKey,opponent_type:snapshot.opponentType,opponent_name:snapshot.names[1],opponent_profile_id:snapshot.opponentProfileId||null,start_score:snapshot.start,best_of:snapshot.bestOf,legs_won:snapshot.legs[i],legs_lost:snapshot.legs[1],won:winnerIndex===i,scored_points:snapshot.scored[i],darts_thrown:snapshot.throws[i],count_180:snapshot.max180[i],high_finish:Math.max(0,...snapshot.highFinishes[i])||null,shortest_leg:Math.min(Infinity,...snapshot.shortLegs[i])===Infinity?null:Math.min(...snapshot.shortLegs[i]),double_attempts:snapshot.doubles[i],double_hits:snapshot.doubleHits[i],double_complete:snapshot.trackDoubles&&snapshot.doubleComplete[i]};
  try{
-   const saved=await window.ArenaCloud?.saveMatch?.(result);
+   let saved;
+   if(snapshot.opponentType==='registered'){
+     const j=1;
+     const second={match_key:matchKey,opponent_type:'registered',opponent_name:snapshot.names[0],opponent_profile_id:window.ArenaCloud?.selectedProfile?.()||null,start_score:snapshot.start,best_of:snapshot.bestOf,legs_won:snapshot.legs[j],legs_lost:snapshot.legs[0],won:winnerIndex===j,scored_points:snapshot.scored[j],darts_thrown:snapshot.throws[j],count_180:snapshot.max180[j],high_finish:Math.max(0,...snapshot.highFinishes[j])||null,shortest_leg:Math.min(Infinity,...snapshot.shortLegs[j])===Infinity?null:Math.min(...snapshot.shortLegs[j]),double_attempts:snapshot.doubles[j],double_hits:snapshot.doubleHits[j],double_complete:snapshot.trackDoubles&&snapshot.doubleComplete[j]};
+     saved=await window.ArenaCloud?.saveRegisteredMatch?.(result,second);
+   }else saved=await window.ArenaCloud?.saveMatch?.(result);
    if(!saved?.saved){console.error('Match nicht gespeichert:',saved?.reason);alert('Match beendet, aber nicht in Supabase gespeichert: '+(saved?.reason||'Cloud nicht erreichbar')+'\nBitte vor dem Schließen prüfen.');}
  }catch(error){console.error(error);alert('Match konnte nicht gespeichert werden: '+error.message);}
 }
