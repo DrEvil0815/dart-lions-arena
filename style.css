@@ -270,3 +270,35 @@ html.dash-home #dashboard:not([hidden]){display:block!important;}
   #setup-screen .setup-form select {min-height:54px;font-size:16px}
   #setup-screen .setup-card > p {margin-bottom:18px}
 }
+
+
+/* V4.12 – Dashboard ohne äußeres Fenster, nutzt verfügbare Bildschirmbreite. */
+#dashboard.arena-dashboard {
+  width:100%; max-width:none; min-width:0; margin:0;
+  padding:clamp(14px,2.5vw,36px) clamp(14px,3vw,52px) 0;
+  box-sizing:border-box; overflow:visible;
+}
+#dashboard .dashboard-card {
+  width:100%; max-width:none; box-sizing:border-box;
+  background:transparent; border:0; border-radius:0;
+  box-shadow:none; padding:0; margin:0;
+}
+#dashboard .dash-profile {margin-top:clamp(14px,2vw,28px);}
+#dashboard .dash-stats {grid-template-columns:repeat(5,minmax(0,1fr));gap:clamp(10px,1.5vw,22px)}
+#dashboard .dash-stats > div {padding:clamp(16px,2vw,28px) 10px;min-width:0}
+#dashboard .dash-actions {grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(12px,1.5vw,24px)}
+#dashboard .dash-actions button {min-width:0;min-height:clamp(150px,16vw,240px);padding:clamp(18px,2.5vw,34px)}
+#dashboard .arena-bottom-nav {
+  width:100%;box-sizing:border-box;max-width:none;
+  margin:clamp(20px,3vw,40px) 0 0;
+}
+@media(max-width:850px) {
+  #dashboard .dash-stats {grid-template-columns:repeat(3,minmax(0,1fr))}
+  #dashboard .dash-actions {grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:540px) {
+  #dashboard.arena-dashboard {padding:14px 12px 0}
+  #dashboard .dash-stats {grid-template-columns:repeat(2,minmax(0,1fr))}
+  #dashboard .dash-actions {grid-template-columns:1fr}
+  #dashboard .dash-actions button {min-height:135px}
+}

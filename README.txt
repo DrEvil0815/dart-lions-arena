@@ -1,1 +1,1 @@
-V4.11 – Matchvorbereitung zentriert, ohne Rahmen, groessere Eingabefelder. Nur style.css ersetzen. Bei alter Anzeige Browser mit Strg+F5 neu laden. Keine Aenderung an HTML, JavaScript oder Supabase. Browser-Test noch offen.
+V4.12: Dashboard ohne äußeren Container, volle Breite, responsive Kacheln. Basiert auf CSS V4.11. Nur style.css ersetzen. Keine Live-Browsertests durchgeführt.
