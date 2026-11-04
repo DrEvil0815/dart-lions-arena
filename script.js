@@ -53,7 +53,8 @@ function showSetup() {
   stopBot();
   $('game-screen').hidden = true;
   $('setup-screen').hidden = true;
-  $('choice-screen').hidden = false;
+  $('choice-screen').hidden = true;
+  window.ArenaReturnDashboard?.();
   $('points').value = '';
   dartDraft=[]; pendingVisit=null; $('double-overlay').hidden=true;document.body.classList.remove('dialog-open');
 }
@@ -355,7 +356,7 @@ $('undo').addEventListener('click',()=>{
   $('message').textContent='Letzte Aufnahme zurückgenommen.'; render();scheduleBot();
 });
 // Start immer im Hauptmenü; Setup erst nach einer Auswahl.
-$('choice-screen').hidden=false;
+$('choice-screen').hidden=true;
 $('setup-screen').hidden=true;
 $('game-screen').hidden=true;
 $('kids-screen').hidden=true;
